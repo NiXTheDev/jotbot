@@ -110,5 +110,5 @@ export async function record(conversation: Conversation, ctx: Context) {
     console.log (`Failed to insert Entry: ${err}`);
     return await ctx.reply(`Failed to insert entry: ${err}`);
   }
-  await ctx.reply(`Entry added at ${entry.timestamp.toLocaleString()}!  Thank you for logging your mood wit me.`);
+  await ctx.reply(`Entry added at ${new Date(entry.timestamp).toLocaleString()}!  Thank you for logging your mood wit me.`);
 }

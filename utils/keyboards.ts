@@ -20,5 +20,6 @@ export const mainCustomKeyboard: Keyboard = new Keyboard()
   .text("/new_entry").row()
   .text("/view_entries").row()
   .text("/delete_account")
+  .text("/🆘")
   .resized()
   .persistent();

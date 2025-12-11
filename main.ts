@@ -23,6 +23,7 @@ import { mainCustomKeyboard, registerKeyboard } from "./utils/keyboards.ts";
 import { delete_account } from "./handlers/delete_account.ts";
 import { delete_entry } from "./handlers/delete_entry.ts";
 import { view_entries } from "./handlers/view_entries.ts";
+import { crisisString } from "./constants/strings.ts";
 
 if (import.meta.main) {
   // Check if database is present and if not create one
@@ -126,43 +127,40 @@ if (import.meta.main) {
     },
   );
 
+  jotBotCommands.command(
+    "🆘",
+    "Show helplines and other crisis information.",
+    async (ctx) => {
+      await ctx.reply(crisisString.replace("<username>", ctx.from?.username!), {
+        parse_mode: "HTML",
+      });
+    },
+  );
+
   jotBot.on("inline_query", async (ctx) => {
-    const entryQueryResults = getEntriesByUserId(ctx.inlineQuery.from.id);
-
-    const entries: InlineQueryResult[] = [];
-    for (const e in entryQueryResults) {
-      const entry: Entry = {
-        id: Number(entryQueryResults[e].id!),
-        userId: Number(entryQueryResults[e].userId!),
-        timestamp: Number(entryQueryResults[e].timestamp!),
-        situation: entryQueryResults[e].situation?.toString()!,
-        automaticThoughts: entryQueryResults[e].automaticThoughts?.toString()!,
-        mood: {
-          moodName: entryQueryResults[e].moodName?.toString()!,
-          moodEmoji: entryQueryResults[e].moodEmoji?.toString()!,
-          moodDescription: entryQueryResults[e].moodDescription?.toString()!,
-        },
-        selfiePath: entryQueryResults[e].selfiePath?.toString()!,
-      };
-
-      const entryDate = new Date(entry.timestamp);
+    const entries = getEntriesByUserId(ctx.inlineQuery.from.id);
+    const entriesInlineQueryResults: InlineQueryResult[] = [];
+    for (const entry in entries) {
+      const entryDate = new Date(entries[entry].timestamp);
       // Build string
-      const entryString =
-        `<b><u>Entry Date ${entryDate.toLocaleString()}</u></b>
-      <b>Mood</b> ${entry.mood.moodName} ${entry.mood.moodEmoji}
+      const entryString = `
+        <b><u>Entry Date ${entryDate.toLocaleString()}</u></b>
+        <b><u>Emotion</u></b>
+        ${entries[entry].emotion.emotionName} ${entries[entry].emotion.emotionEmoji}
 
-      <b><u>Mood Description</u></b>
-      ${entry.mood.moodDescription}
+        <b><u>Emotion Description</u></b>
+        ${entries[entry].emotion.emotionDescription}
 
-      <b><u>Situation</u></b>
-      ${entry.situation}
+        <b><u>Situation</u></b>
+        ${entries[entry].situation}
 
-      <b><u>Automatic Thoughts</u></b>
-      ${entry.automaticThoughts}`;
+        <b><u>Automatic Thoughts</u></b>
+        ${entries[entry].automaticThoughts}
+        `;
 
-      entries.push(
+      entriesInlineQueryResults.push(
         InlineQueryResultBuilder.article(
-          String(entry.id),
+          String(entries[entry].id),
           entryDate.toLocaleString(),
         ).text(entryString, { parse_mode: "HTML" }),
       );
@@ -187,7 +185,7 @@ if (import.meta.main) {
       // }
     }
 
-    await ctx.answerInlineQuery(entries, {
+    await ctx.answerInlineQuery(entriesInlineQueryResults, {
       cache_time: 0,
       is_personal: true,
     });

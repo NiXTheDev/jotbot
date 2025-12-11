@@ -9,7 +9,7 @@ import { register } from "./handlers/register.ts";
 import { existsSync } from "node:fs";
 import { createEntryTable, createUserTable } from "./db/migration.ts";
 import { userExists } from "./models/user.ts";
-import { deleteEntry, getAllEntries } from "./models/entry.ts";
+import { deleteEntry, getEntriesByUserId } from "./models/entry.ts";
 import { Entry } from "./types/types.ts";
 import { InlineQueryResult } from "grammy/types";
 import {
@@ -19,9 +19,10 @@ import {
   type CommandsFlavor,
 } from "@grammyjs/commands";
 import { FileFlavor, hydrateFiles } from "@grammyjs/files";
-import { registerKeyboard } from "./utils/keyboards.ts";
+import { mainCustomKeyboard, registerKeyboard } from "./utils/keyboards.ts";
 import { delete_account } from "./handlers/delete_account.ts";
 import { delete_entry } from "./handlers/delete_entry.ts";
+import { view_entries } from "./handlers/view_entries.ts";
 
 if (import.meta.main) {
   // Check if database is present and if not create one
@@ -51,30 +52,27 @@ if (import.meta.main) {
   jotBot.use(commands());
   jotBot.use(conversations());
 
-
   // Setup the conversations and commands
-  jotBot.use(createConversation(register))
-  jotBot.use(createConversation(new_entry))
-  jotBot.use(createConversation(delete_account))
+  jotBot.use(createConversation(register));
+  jotBot.use(createConversation(new_entry));
+  jotBot.use(createConversation(view_entries));
+  jotBot.use(createConversation(delete_account));
 
   jotBotCommands.command("start", "Starts the bot.", async (ctx) => {
     // Check if user exists in Database
-    const userTelegramId = (await ctx.getAuthor()).user.id!;
+    const userTelegramId = ctx.from?.id!;
 
     if (!userExists(userTelegramId)) {
       ctx.reply(
-        `Welcome ${
-          (await ctx.getAuthor()).user.username
-        }!  I can see you are a new user, would you like to register now?`,
+        `Welcome ${ctx.from?.username}!  I can see you are a new user, would you like to register now?`,
         {
           reply_markup: registerKeyboard,
         },
       );
     } else {
       await ctx.reply(
-        `Hello ${
-          (await ctx.getAuthor()).user.username
-        } you have already completed the onboarding process.`,
+        `Hello ${ctx.from?.username} you have already completed the onboarding process.`,
+        { reply_markup: mainCustomKeyboard },
       );
     }
   });
@@ -86,17 +84,23 @@ if (import.meta.main) {
   });
 
   jotBotCommands.command("new_entry", "Create new entry", async (ctx) => {
-    if (!userExists((await ctx.getAuthor()).user.id)) {
+    if (!userExists(ctx.from?.id!)) {
       await ctx.reply(
-        `Hello ${
-          (await ctx.getAuthor()).user.username
-        }!  It looks like you haven't completed the onboarding process yet.  Would you like to register to begin the registration process?`,
+        `Hello ${ctx.from?.username}!  It looks like you haven't completed the onboarding process yet.  Would you like to register to begin the registration process?`,
         { reply_markup: registerKeyboard },
       );
     } else {
       await ctx.conversation.enter("new_entry");
     }
   });
+
+  jotBotCommands.command(
+    "view_entries",
+    "View current entries.",
+    async (ctx) => {
+      await ctx.conversation.enter("view_entries");
+    },
+  );
 
   jotBotCommands.command(
     "delete_account",
@@ -123,7 +127,7 @@ if (import.meta.main) {
   );
 
   jotBot.on("inline_query", async (ctx) => {
-    const entryQueryResults = getAllEntries(ctx.inlineQuery.from.id);
+    const entryQueryResults = getEntriesByUserId(ctx.inlineQuery.from.id);
 
     const entries: InlineQueryResult[] = [];
     for (const e in entryQueryResults) {
@@ -156,25 +160,31 @@ if (import.meta.main) {
       <b><u>Automatic Thoughts</u></b>
       ${entry.automaticThoughts}`;
 
-      if (entry.selfiePath) {
-        console.log(`file://${entry.selfiePath}`);
-        entries.push(
-          InlineQueryResultBuilder.article(
-            String(entry.id),
-            entryDate.toLocaleString(),
-            {
-              thumbnail_url: `file://${entry.selfiePath}`,
-            },
-          ).text(entryString, { parse_mode: "HTML" }),
-        );
-      } else {
-        entries.push(
-          InlineQueryResultBuilder.article(
-            String(entry.id),
-            entryDate.toLocaleString(),
-          ).text(entryString, { parse_mode: "HTML" }),
-        );
-      }
+      entries.push(
+        InlineQueryResultBuilder.article(
+          String(entry.id),
+          entryDate.toLocaleString(),
+        ).text(entryString, { parse_mode: "HTML" }),
+      );
+      // if (entry.selfiePath) {
+      //   console.log(`file://${entry.selfiePath}`);
+      //   entries.push(
+      //     InlineQueryResultBuilder.article(
+      //       String(entry.id),
+      //       entryDate.toLocaleString(),
+      //       {
+      //         thumbnail_url: `file://${entry.selfiePath}`,
+      //       },
+      //     ).text(entryString, { parse_mode: "HTML" }),
+      //   );
+      // } else {
+      //   entries.push(
+      //     InlineQueryResultBuilder.article(
+      //       String(entry.id),
+      //       entryDate.toLocaleString(),
+      //     ).text(entryString, { parse_mode: "HTML" }),
+      //   );
+      // }
     }
 
     await ctx.answerInlineQuery(entries, {

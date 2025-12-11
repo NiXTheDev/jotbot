@@ -52,12 +52,13 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
     ),
   });
 
-  const selfieCtx = conversation.waitForCallbackQuery([
+  const selfieCtx = await conversation.waitForCallbackQuery([
     "selfie-yes",
     "selfie-no",
   ]);
+
   let selfiePath: string | null = "";
-  if ((await selfieCtx).callbackQuery.data === "selfie-yes") {
+  if (selfieCtx.callbackQuery.data === "selfie-yes") {
     try {
       await ctx.reply("Send me a selfie.");
       const selfiePathCtx = await conversation.waitFor("message:photo");
@@ -72,7 +73,7 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
 
       if (selfieResponse.body) {
         await conversation.external(async () => {
-          const fileName = `${(await selfiePathCtx.getAuthor()).user.id}_${
+          const fileName = `${ctx.from?.id}_${
             new Date(Date.now()).toLocaleString()
           }.jpg`.replaceAll(" ", "_").replace(",", "").replaceAll("/", "-"); // Build and sanitize selfie file name
 
@@ -87,7 +88,7 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
           await selfieResponse.body!.pipeTo(file.writable);
         });
 
-        await selfiePathCtx.reply(`Selfie saved successfully!`);
+        await ctx.reply(`Selfie saved successfully!`);
       }
     } catch (err) {
       console.log(`Jotbot Error: Failed to save selfie: ${err}`);
@@ -102,14 +103,12 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
 
   const entry: Entry = {
     timestamp: Date.now(),
-    userId: (await ctx.getAuthor()).user.id!,
+    userId: ctx.from?.id!,
     mood: mood,
     situation: situationCtx.message.text,
     automaticThoughts: automaticThoughtCtx.message.text,
     selfiePath: selfiePath,
   };
-
-  console.log(entry);
 
   try {
     await conversation.external(() => insertEntry(entry));

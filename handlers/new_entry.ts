@@ -1,48 +1,48 @@
 import { Context, InlineKeyboard } from "grammy";
 import { Conversation } from "@grammyjs/conversations";
-import { Entry, Mood } from "../types/types.ts";
+import { Entry, Emotion } from "../types/types.ts";
 import { insertEntry } from "../models/entry.ts";
 import { telegramDownloadUrl } from "../constants/strings.ts";
 
 export async function new_entry(conversation: Conversation, ctx: Context) {
   // Describe situation
-  await ctx.reply("What was happening at the time, and prior to your thought?");
+  await ctx.reply("Describe the situation that brought up your thought.");
   const situationCtx = await conversation.waitFor("message:text");
 
   // Record automatic thoughts
   await ctx.reply(
-    "Describe the thought.  Rate how much you believed it out of 100%.",
+    `Okay ${ctx.from?.username} describe the thought.  Rate how much you believed it out of 100%.`,
   );
   const automaticThoughtCtx = await conversation.waitFor("message:text");
 
-  // Emoji and mood descriptor
+  // Emoji and emotion descriptor
   await ctx.reply(
-    "Send one word describing how you feel, along with an emoji that matches how you feel.",
+    "Send one word describing your emotions, along with an emoji that matches your emotions.",
   );
-  const emojiAndMoodName = await conversation.waitFor("message:text");
+  const emojiAndEmotionName = await conversation.waitFor("message:text");
 
-  // Describe your feelings and mood
+  // Describe your feelings
   await ctx.reply(
-    "What was your mood at the time?  How intense were your feelings out of 100%?",
+    "What emotions were you feeling at the time?  How intense were your feelings out of 100%?",
   );
-  const moodDescriptionCtx = await conversation.waitFor("message:text");
+  const emotionDescriptionCtx = await conversation.waitFor("message:text");
 
-  // Build entry and mood objects
-  const mood: Mood = {
-    moodName: "",
-    moodEmoji: "",
-    moodDescription: moodDescriptionCtx.message.text,
+  // Build entry and emotion objects
+  const emotion: Emotion = {
+    emotionName: "",
+    emotionEmoji: "",
+    emotionDescription: emotionDescriptionCtx.message.text,
   };
 
-  const moodNameAndEmoji = emojiAndMoodName.message.text.split(" ");
+  const emotionNameAndEmoji = emojiAndEmotionName.message.text.split(" ");
 
   const emojiRegex = /\p{Emoji}/u;
-  if (emojiRegex.test(moodNameAndEmoji[0])) {
-    mood.moodEmoji = moodNameAndEmoji[0];
-    mood.moodName = moodNameAndEmoji[1];
+  if (emojiRegex.test(emotionNameAndEmoji[0])) {
+    emotion.emotionEmoji = emotionNameAndEmoji[0];
+    emotion.emotionName = emotionNameAndEmoji[1];
   } else {
-    mood.moodEmoji = moodNameAndEmoji[1];
-    mood.moodName = moodNameAndEmoji[0];
+    emotion.emotionEmoji = emotionNameAndEmoji[1];
+    emotion.emotionName = emotionNameAndEmoji[0];
   }
 
   ctx.reply("Would you like to take a selfie?", {
@@ -104,7 +104,7 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
   const entry: Entry = {
     timestamp: Date.now(),
     userId: ctx.from?.id!,
-    mood: mood,
+    emotion: emotion,
     situation: situationCtx.message.text,
     automaticThoughts: automaticThoughtCtx.message.text,
     selfiePath: selfiePath,
@@ -119,6 +119,6 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
   return await ctx.reply(
     `Entry added at ${
       new Date(entry.timestamp).toLocaleString()
-    }!  Thank you for logging your mood with me.`,
+    }!  Thank you for logging your emotion with me.`,
   );
 }

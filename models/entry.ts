@@ -19,7 +19,7 @@ export function insertEntry(entry: Entry) {
   db.close();
 }
 
-export function getAllEntries(userId: number): Record<string, SQLInputValue>[] {
+export function getEntriesByUserId(userId: number): Record<string, SQLInputValue>[] {
   const entries = [];
   try {
     const db = new DatabaseSync("db/jotbot.db");

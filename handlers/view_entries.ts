@@ -51,8 +51,8 @@ ${entries[currentEntry].automaticThoughts}
         await viewEntryCtx.editMessageText(
           "Are you sure you want to delete this entry?",
           {
-            reply_markup: new InlineKeyboard().text("Yes", "delete-entry-yes")
-              .text("No", "delete-entry-no"),
+            reply_markup: new InlineKeyboard().text("✅ Yes", "delete-entry-yes")
+              .text("⛔ No", "delete-entry-no"),
           },
         );
         const deleteEntryConfirmCtx = await conversation.waitForCallbackQuery([

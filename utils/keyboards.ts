@@ -7,19 +7,25 @@ export const registerKeyboard = new InlineKeyboard().text(
 );
 
 export const deleteAccountConfirmKeyboard: InlineKeyboard = new InlineKeyboard()
-  .text("Yes", "delete-account-yes")
+  .text("💥Yes💥", "delete-account-yes")
   .text("No", "delete-account-no");
 
 export const viewEntriesKeyboard: InlineKeyboard = new InlineKeyboard()
-  .text("Prev", "previous-entry")
-  .text("Delete", "delete-entry")
-  .text("Next", "next-entry").row()
-  .text("Back", "view-entry-backbutton");
+  .text("⏮️", "previous-entry")
+  .text("💣 Delete 💣", "delete-entry")
+  .text("⏭️", "next-entry").row()
+  .text("🔙 Back", "view-entry-backbutton");
 
 export const mainCustomKeyboard: Keyboard = new Keyboard()
   .text("/new_entry").row()
   .text("/view_entries").row()
   .text("/delete_account")
   .text("/🆘")
-  .resized()
-  .persistent();
+  .resized();
+
+export const viewEntriesKeyboardButtons = [
+  ["Prev", "previous-entry"],
+  ["Delete", "delete-entry"],
+  ["Next", "next-entry"],
+  ["Back", "view-entry-backbutton"],
+];

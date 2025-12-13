@@ -21,12 +21,14 @@ export const mainCustomKeyboard: Keyboard = new Keyboard()
   .text("/view_entries").row()
   .text("/delete_account")
   .text("/🆘").row()
+  .text("/kitties")
   .text("/help")
   .resized();
 
-export const viewEntriesKeyboardButtons = [
-  ["Prev", "previous-entry"],
-  ["Delete", "delete-entry"],
-  ["Next", "next-entry"],
-  ["Back", "view-entry-backbutton"],
-];
+export const mainKittyKeyboard: InlineKeyboard = new InlineKeyboard()
+  .text("🐱 Random Kitty 🎲", "random-kitty").row()
+  .text("🐱 Specific Kitty", "specific-kitty").row()
+  .text("Kitty Gif", "kitty-gif")
+  .text("Kitty Says", "kitty-says").row()
+  .text("Inspirational Kitty", "inspiration-kitty").row()
+  .text("Exit", "kitty-exit");

@@ -7,7 +7,7 @@ export const registerKeyboard = new InlineKeyboard().text(
 );
 
 export const deleteAccountConfirmKeyboard: InlineKeyboard = new InlineKeyboard()
-  .text("💥Yes💥", "delete-account-yes")
+  .text("⚠️ Yes ⚠️", "delete-account-yes")
   .text("No", "delete-account-no");
 
 export const viewEntriesKeyboard: InlineKeyboard = new InlineKeyboard()
@@ -20,7 +20,8 @@ export const mainCustomKeyboard: Keyboard = new Keyboard()
   .text("/new_entry").row()
   .text("/view_entries").row()
   .text("/delete_account")
-  .text("/🆘")
+  .text("/🆘").row()
+  .text("/help")
   .resized();
 
 export const viewEntriesKeyboardButtons = [

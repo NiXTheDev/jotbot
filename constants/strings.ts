@@ -46,7 +46,7 @@ If you are wanting to stop using Jotbot you can delete your account using /delet
 /new_entry - Start a new entry
 /view_entries - Scroll through your entries
 /delete_account - Delete your accound plus all entries
-/🆘 - Show the crisis help lines
+/🆘 or /sos - Show the crisis help lines
 
 <b>NOTE</b>: The selfie features aren't working right now.
 `

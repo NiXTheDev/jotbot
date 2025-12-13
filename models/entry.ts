@@ -1,4 +1,4 @@
-import { DatabaseSync, SQLInputValue } from "node:sqlite";
+import { DatabaseSync } from "node:sqlite";
 import { Entry } from "../types/types.ts";
 
 export function insertEntry(entry: Entry) {

@@ -90,7 +90,7 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
       }
     }
 
-    console.log(`Current Entry ${currentEntry}`);
+
     let nextEntryString;
     if (
       entries[currentEntry] && currentEntry <= entries.length &&

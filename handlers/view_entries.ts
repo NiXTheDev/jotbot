@@ -10,7 +10,7 @@ export async function view_entries(conversation: Conversation, ctx: Context) {
 
   const entryString = `
 Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
-Date ${new Date(entries[currentEntry].timestamp).toLocaleString()}
+<b>Date<b> ${new Date(entries[currentEntry].timestamp).toLocaleString()}
 <b><u>Emotion</u></b>
 ${entries[currentEntry].emotion.emotionName} ${
     entries[currentEntry].emotion.emotionEmoji
@@ -24,6 +24,8 @@ ${entries[currentEntry].situation}
 
 <b><u>Automatic Thoughts</u></b>
 ${entries[currentEntry].automaticThoughts}
+
+Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
 `;
   await ctx.reply(entryString, {
     reply_markup: viewEntriesKeyboard,
@@ -95,7 +97,7 @@ ${entries[currentEntry].automaticThoughts}
     ) {
       nextEntryString = `
 Entry <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
-Date ${new Date(entries[currentEntry].timestamp).toLocaleString()}
+<b>Date<b> ${new Date(entries[currentEntry].timestamp).toLocaleString()}
 <b><u>Emotion</u></b>
 ${entries[currentEntry].emotion.emotionName} ${
         entries[currentEntry].emotion.emotionEmoji
@@ -109,6 +111,8 @@ ${entries[currentEntry].situation}
 
 <b><u>Automatic Thoughts</u></b>
 ${entries[currentEntry].automaticThoughts}
+
+Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
 `;
 
       await viewEntryCtx.editMessageText(nextEntryString, {

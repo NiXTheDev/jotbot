@@ -18,13 +18,19 @@ export class KittyEngine {
 
   async getSpecificKitty() {
     const response = await fetch(
-      `${this.baseUrl}/cat/${this.tagString?.toLowerCase().replaceAll(" ", "")}`,
+      `${this.baseUrl}/cat/${
+        this.tagString?.toLowerCase().replaceAll(" ", "")
+      }`,
       {
         headers: { accept: "application/json" },
       },
     );
     const json = await response.json();
-    console.log(`${this.baseUrl}/cat/${this.tagString?.toLocaleLowerCase().replaceAll(" ", "")}`);
+    console.log(
+      `${this.baseUrl}/cat/${
+        this.tagString?.toLocaleLowerCase().replaceAll(" ", "")
+      }`,
+    );
     return json;
   }
 

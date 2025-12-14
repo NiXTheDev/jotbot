@@ -10,7 +10,7 @@ export type Entry = {
 
 export type Emotion = {
   emotionName: string;
-  emotionEmoji: string;
+  emotionEmoji?: string;
   emotionDescription: string;
 };
 

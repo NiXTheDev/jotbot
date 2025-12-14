@@ -16,7 +16,7 @@ export async function delete_account(conversation: Conversation, ctx: Context) {
     ]);
 
     if (deleteAccountCtx.callbackQuery.data === "delete-account-yes") {
-      deleteUser(ctx.from?.id!);
+      await conversation.external(() => deleteUser(ctx.from?.id!));
     } else if (deleteAccountCtx.callbackQuery.data === "delete-account-no") {
       conversation.halt();
       return await deleteAccountCtx.editMessageText("No changes made!");

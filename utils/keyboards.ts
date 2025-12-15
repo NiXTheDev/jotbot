@@ -22,6 +22,7 @@ export const mainCustomKeyboard: Keyboard = new Keyboard()
   .text("/🆘").row()
   .text("/kitties")
   .text("/help")
+  .oneTime(true)
   .resized();
 
 export const mainKittyKeyboard: InlineKeyboard = new InlineKeyboard()

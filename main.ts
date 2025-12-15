@@ -79,7 +79,13 @@ if (import.meta.main) {
   });
 
   jotBotCommands.command("help", "Show how to use the bot", async (ctx) => {
-    await ctx.reply(helpString, {parse_mode: "HTML"});
+    await ctx.reply(helpString, { parse_mode: "HTML" });
+  });
+
+  jotBotCommands.command("stop", "Stop the bot", async (ctx) => {
+    await ctx.reply("Okay, see ya later!");
+    Deno.addSignalListener("SIGINT", () => jotBot.stop());
+    Deno.addSignalListener("SIGTERM", () => jotBot.stop());
   });
 
   jotBotCommands.command("kitties", "Start the kitty engine!", async (ctx) => {
@@ -87,7 +93,7 @@ if (import.meta.main) {
   });
 
   jotBotCommands.command("register", "Register new user", async (ctx) => {
-    await ctx.reply("Starting the registration process.", {
+    await ctx.reply("Press button to begin.", {
       reply_markup: registerKeyboard,
     });
   });
@@ -201,5 +207,5 @@ ${entries[entry].automaticThoughts}
       }
       await ctx.reply("Invalid Command");
     });
-  jotBot.start();
+  await jotBot.start();
 }

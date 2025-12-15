@@ -26,7 +26,7 @@ export async function kitties(conversation: Conversation, ctx: Context) {
         );
         break;
       }
-      case ("kitty-gif"): {
+      case "kitty-gif": {
         const kitty = await kittyEngine.getRandomKittyGif();
         await kittyMainSelectionCtx.editMessageMedia(
           InputMediaBuilder.animation(kitty.url),
@@ -36,7 +36,7 @@ export async function kitties(conversation: Conversation, ctx: Context) {
         );
         break;
       }
-      case ("kitty-says"): {
+      case "kitty-says": {
         await kittyMainSelectionCtx.deleteMessage();
         await kittyMainSelectionCtx.api.sendMessage(
           kittyMainSelectionCtx.chatId!,
@@ -52,7 +52,7 @@ export async function kitties(conversation: Conversation, ctx: Context) {
         );
         break;
       }
-      case ("inspiration-kitty"): {
+      case "inspiration-kitty": {
         const iqResponse = await fetch(quotesApiBaseUrl);
         const iqJson = await iqResponse.json();
         const quote = iqJson[0].q;
@@ -68,7 +68,7 @@ export async function kitties(conversation: Conversation, ctx: Context) {
         );
         break;
       }
-      case ("kitty-exit"): {
+      case "kitty-exit": {
         await kittyMainSelectionCtx.deleteMessage();
         await conversation.halt();
         break loop;

@@ -21,11 +21,13 @@ export async function delete_account(conversation: Conversation, ctx: Context) {
       conversation.halt();
       return await deleteAccountCtx.editMessageText("No changes made!");
     }
+    await conversation.halt();
+    return await ctx.editMessageText(`Okay ${ctx.from?.username} your account has been terminated along with all of your entries.  Thanks for trying Jotbot!`);
 
-    await ctx.reply(`Okay ${ctx.from?.username} your account has been terminated along with all of your entries.  Thanks for trying Jotbot!`);
   } catch (err) {
     console.log(
       `Failed to delete user ${ctx.from?.username}: ${err}`,
     );
+    return await ctx.editMessageText(`Failed to delete user ${ctx.from?.username}: ${err}`);
   }
 }

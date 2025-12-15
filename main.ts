@@ -113,7 +113,14 @@ if (import.meta.main) {
     "view_entries",
     "View current entries.",
     async (ctx) => {
-      await ctx.conversation.enter("view_entries");
+      if (!userExists(ctx.from?.id!)) {
+        await ctx.reply(
+          `Hello ${ctx.from?.username}!  It looks like you haven't completed the onboarding process yet.  Would you like to register to begin the registration process?`,
+          { reply_markup: registerKeyboard },
+        );
+      } else {
+        await ctx.conversation.enter("view_entries");
+      }
     },
   );
 

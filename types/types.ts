@@ -2,6 +2,7 @@ export type Entry = {
   id?: number;
   userId: number;
   timestamp: number;
+  lastEditedTimestamp?: number;
   emotion: Emotion;
   situation: string;
   automaticThoughts: string;

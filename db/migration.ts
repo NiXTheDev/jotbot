@@ -9,6 +9,7 @@ export function createEntryTable() {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             userId INTEGER NOT NULL,
             timestamp INTEGER NOT NULL,
+            lastEditedTimestamp INTEGER,
             situation TEXT NOT NULL, 
             automaticThoughts TEXT NOT NULL,
             emotionName TEXT NOT NULL,

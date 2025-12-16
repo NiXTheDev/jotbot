@@ -8,10 +8,11 @@ export function insertEntry(entry: Entry) {
   ) throw new Error("JotBot Error: Databaes integrety check failed!");
   db.exec("PRAGMA foreign_keys = ON;");
   db.prepare(
-    `INSERT INTO entry_db (userId, timestamp, situation, automaticThoughts, emotionName, emotionEmoji, emotionDescription, selfiePath) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
+    `INSERT INTO entry_db (userId, timestamp, lastEditedTimestamp, situation, automaticThoughts, emotionName, emotionEmoji, emotionDescription, selfiePath) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
   ).run(
     entry.userId,
     entry.timestamp,
+    entry.lastEditedTimestamp || null,
     entry.situation,
     entry.automaticThoughts,
     entry.emotion.emotionName,
@@ -37,6 +38,7 @@ export function getEntriesByUserId(userId: number): Entry[] {
         id: Number(queryResults[e].id!),
         userId: Number(queryResults[e].userId!),
         timestamp: Number(queryResults[e].timestamp!),
+        lastEditedTimestamp: Number(queryResults[e].lastEditedTimestamp!),
         situation: queryResults[e].situation?.toString()!,
         automaticThoughts: queryResults[e].automaticThoughts?.toString()!,
         emotion: {
@@ -58,7 +60,34 @@ export function getEntriesByUserId(userId: number): Entry[] {
   return entries;
 }
 
-export function editEntry(entryId: number, entry: Entry) {}
+export function updateEntry(entryId: number, entry: Entry) {
+  try {
+    const db = new DatabaseSync("db/jotbot.db");
+    if (
+      !(db.prepare("PRAGMA integrity_check(entry_db);").get()
+        ?.integrity_check === "ok")
+    ) throw new Error("JotBot Error: Databaes integrety check failed!");
+    const queryResult = db.prepare(
+      `UPDATE OR FAIL entry_db SET lastEditedTimestamp = ?, situation = ?, automaticThoughts = ?, emotionName = ?, emotionEmoji = ?, emotionDescription = ? WHERE id = ${entry.id};`,
+    ).run(
+      entry.lastEditedTimestamp!,
+      entry.situation!,
+      entry.automaticThoughts!,
+      entry.emotion.emotionName!,
+      entry.emotion.emotionEmoji! || null,
+      entry.emotion.emotionDescription!,
+    );
+
+    if (queryResult.changes === 0) {
+      throw new Error(`There was a problem updating entry ${entry.id}.`);
+    }
+
+    db.close();
+  } catch (err) {
+    throw new Error(`Failed to update entry ${entryId} in entry_db: ${err}`);
+  }
+  console.log(`Entry ${entry.id} updated!`);
+}
 
 export function deleteEntryById(entryId: number) {
   try {

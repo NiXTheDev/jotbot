@@ -37,7 +37,7 @@ export async function kitties(conversation: Conversation, ctx: Context) {
         break;
       }
       case "kitty-says": {
-        await kittyMainSelectionCtx.deleteMessage();
+        // await kittyMainSelectionCtx.deleteMessage();
         await kittyMainSelectionCtx.api.sendMessage(
           kittyMainSelectionCtx.chatId!,
           "What would you like your kitty to say?",
@@ -45,11 +45,12 @@ export async function kitties(conversation: Conversation, ctx: Context) {
 
         const kittySaysCtx = await conversation.waitFor("message:text");
         const kitty = await kittyEngine.getKittySays(kittySaysCtx.message.text);
-        await kittyMainSelectionCtx.api.sendPhoto(
-          kittyMainSelectionCtx.chatId!,
-          kitty.url,
+        await kittyMainSelectionCtx.editMessageMedia(
+          InputMediaBuilder.photo(kitty.url),
           { reply_markup: mainKittyKeyboard },
         );
+        await kittyMainSelectionCtx.api.deleteMessage(ctx.chatId!, kittyMainSelectionCtx.msgId! + 1);
+        await kittySaysCtx.deleteMessage();
         break;
       }
       case "inspiration-kitty": {

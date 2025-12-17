@@ -1,4 +1,4 @@
-import { assertEquals, assertExists } from "@std/assert";
+import { assertExists } from "@std/assert";
 import { KittyEngine } from "../utils/KittyEngine.ts";
 
 Deno.test("Test getRandomKitty()", async () => {

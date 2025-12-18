@@ -8,6 +8,7 @@ import {
 import { Entry } from "../types/types.ts";
 import { viewEntriesKeyboard } from "../utils/keyboards.ts";
 import { entryFromString } from "../utils/entryFromString.ts";
+import { sleep } from "../utils/misc.ts";
 
 export async function view_entries(conversation: Conversation, ctx: Context) {
   let entries: Entry[] = await conversation.external(() =>
@@ -187,12 +188,11 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
           viewEntryCtx.msgId! + 1,
           "Message Updated!",
         );
-        await new Promise(() =>
-          setTimeout(
-            async () =>
-              await ctx.api.deleteMessage(ctx.chatId!, viewEntryCtx.msgId! + 1),
-            3000,
-          )
+        // Wait 3 seconds before deleting success message
+        await sleep(3000);
+        await ctx.api.deleteMessage(
+          ctx.chatId!,
+          viewEntryCtx.msgId! + 1,
         );
         break;
       }

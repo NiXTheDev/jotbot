@@ -1,17 +1,18 @@
-import { Context, InlineKeyboard } from "grammy";
+import { Context, InlineKeyboard, InputMediaBuilder } from "grammy";
 import { Conversation } from "@grammyjs/conversations";
 import {
   deleteEntryById,
-  getEntriesByUserId,
+  getAllEntriesByUserId,
   updateEntry,
 } from "../models/entry.ts";
 import { Entry } from "../types/types.ts";
 import { viewEntriesKeyboard } from "../utils/keyboards.ts";
-import { sleep, entryFromString } from "../utils/misc.ts";
+import { entryFromString, sleep } from "../utils/misc.ts";
+import { InputFile } from "grammy/types";
 
 export async function view_entries(conversation: Conversation, ctx: Context) {
   let entries: Entry[] = await conversation.external(() =>
-    getEntriesByUserId(ctx.from?.id!)
+    getAllEntriesByUserId(ctx.from?.id!)
   );
 
   // If there are no stored entries inform user and stop conversation
@@ -51,10 +52,15 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
 `;
 
   // Reply initially with first entry before starting loop
-  await ctx.api.sendMessage(ctx.chatId!, entryString, {
-    reply_markup: viewEntriesKeyboard,
-    parse_mode: "HTML",
-  });
+  await ctx.api.sendPhoto(
+    ctx.chatId!,
+    new InputFile(entries[currentEntry].selfiePath! || "assets/404.png"),
+    {
+      caption: entryString,
+      parse_mode: "HTML",
+      reply_markup: viewEntriesKeyboard,
+    },
+  );
 
   loop:
   while (true) {
@@ -95,8 +101,10 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
         break;
       }
       case "delete-entry": {
-        await viewEntryCtx.editMessageText(
-          "Are you sure you want to delete this entry?",
+        await viewEntryCtx.editMessageMedia(
+          InputMediaBuilder.photo(new InputFile(entries[currentEntry].selfiePath!), {
+            caption: "Are you sure you want to delete this entry?",
+          }),
           {
             reply_markup: new InlineKeyboard().text(
               "✅ Yes",
@@ -118,9 +126,20 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
           await conversation.external(() =>
             deleteEntryById(entries[currentEntry].id!)
           );
+
+          // Delete selfie file associated with entry
+          await conversation.external(async () => {
+            try {
+              await Deno.remove(entries[currentEntry].selfiePath!);
+            } catch (err) {
+              if (!(err instanceof Deno.errors.NotFound)) {
+                throw err;
+              }
+            }
+          });
           // Refresh entries array
           entries = await conversation.external(() =>
-            getEntriesByUserId(ctx.from?.id!)
+            getAllEntriesByUserId(ctx.from?.id!)
           );
 
           if (entries.length === 0) {
@@ -152,9 +171,9 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
           entryToEdit = entryFromString(editEntryCtx.message.text);
 
           entryToEdit.id = entries[currentEntry].id;
-          entryToEdit.lastEditedTimestamp = await conversation.external(() =>
-            Date.now()
-          );
+          entryToEdit.lastEditedTimestamp = await conversation.external(() => {
+            return Date.now();
+          });
 
           console.log(entryToEdit);
         } catch (err) {
@@ -178,7 +197,7 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
         }
         // Refresh entries
         entries = await conversation.external(() =>
-          getEntriesByUserId(ctx.from?.id!)
+          getAllEntriesByUserId(ctx.from?.id!)
         );
 
         // await viewEntryCtx.api.sendMessage(ctx.chatId!, "Entry Updated!");
@@ -230,10 +249,13 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
 `;
 
     try {
-      await viewEntryCtx.editMessageText(entryString, {
-        reply_markup: viewEntriesKeyboard,
-        parse_mode: "HTML",
-      });
+      await viewEntryCtx.editMessageMedia(
+        InputMediaBuilder.photo(
+          new InputFile(entries[currentEntry].selfiePath! || "assets/404.png"),
+          { caption: entryString, parse_mode: "HTML" },
+        ),
+        { reply_markup: viewEntriesKeyboard },
+      );
     } catch (_err) { // Ignore error if message content doesn't change that just means there's only one entry in the db
       continue;
     }

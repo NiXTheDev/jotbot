@@ -66,7 +66,7 @@ export async function dropOrphanedSelfies() {
 
   for await (const dirEntry of Deno.readDir("assets/selfies")) {
     for (const regex in dateTimeStrings) {
-      if (!dateTimeStrings[regex].(dirEntry.name)) Deno.remove(`assets/selfies/${dirEntry.name}`);
+      if (!dateTimeStrings[regex].test(dirEntry.name)) Deno.remove(`assets/selfies/${dirEntry.name}`);
     }
   }
 }

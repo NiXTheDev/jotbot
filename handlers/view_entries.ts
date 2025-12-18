@@ -7,8 +7,7 @@ import {
 } from "../models/entry.ts";
 import { Entry } from "../types/types.ts";
 import { viewEntriesKeyboard } from "../utils/keyboards.ts";
-import { entryFromString } from "../utils/entryFromString.ts";
-import { sleep } from "../utils/misc.ts";
+import { sleep, entryFromString } from "../utils/misc.ts";
 
 export async function view_entries(conversation: Conversation, ctx: Context) {
   let entries: Entry[] = await conversation.external(() =>

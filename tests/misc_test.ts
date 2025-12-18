@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert";
-import { entryFromString } from "../utils/entryFromString.ts";
+import { entryFromString } from "../utils/misc.ts";
 import { Entry } from "../types/types.ts";
 
 Deno.test("Test entryFromString()", () => {
@@ -8,28 +8,28 @@ Deno.test("Test entryFromString()", () => {
 Date Created 12/16/2025, 4:32:34 PM
 Last Edited 12/16/2025, 4:43:58 PM
 Emotion
-fdsfsfsfsdfdsfsdfs 
+Test 😌
 
 Emotion Description
-Nipples
+Test Entry
 
 Situation
-tj;ljfsdfdsfas
+Test Entry
 
 Automatic Thoughts
-fdafdfsdfsd
+Test Entry
 
 Page 1 of 15`;
   const testEntry: Entry = {
     userId: 0,
     timestamp: 1765927954000,
     emotion: {
-      emotionName: "fdsfsfsfsdfdsfsdfs",
-      emotionEmoji: "",
-      emotionDescription: "Nipples",
+      emotionName: "Test",
+      emotionEmoji: "😌",
+      emotionDescription: "Test Entry",
     },
-    situation: "tj;ljfsdfdsfas",
-    automaticThoughts: "fdafdfsdfsd",
+    situation: "Test Entry",
+    automaticThoughts: "Test Entry",
     selfiePath: null,
   };
 

@@ -23,7 +23,6 @@ import { delete_account } from "./handlers/delete_account.ts";
 import { view_entries } from "./handlers/view_entries.ts";
 import { crisisString, helpString } from "./constants/strings.ts";
 import { kitties } from "./handlers/kitties.ts";
-import { exit } from "node:process";
 
 if (import.meta.main) {
   // Check if database is present and if not create one

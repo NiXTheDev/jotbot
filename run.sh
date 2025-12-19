@@ -47,6 +47,6 @@ fi
 case $run in
     "dev") deno run dev;;
     "test") deno run test;;
-    "exe") ./IcebreakerBot;;
-    *) echo "Invalid option detected: $run, Expecting dev or test";;
+    "bin") deno run bin; ./jotbot;;
+    *) echo "Invalid option detected: $run, Expecting bin, dev, or test";;
 esac

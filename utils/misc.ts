@@ -7,34 +7,34 @@ export function sleep(ms: number) {
 
 export function entryFromString(entryString: string): Entry {
   try {
-    const date = entryString.match(/[0-9]{2}\/[0-9]{2}\/[0-9]{4}.*/);
     const emotion = entryString.match(
-      /(?<=Emotion\n).*(?=\n\nEmotion Description)/,
-    );
+      /(?<=Emotion)[\S\s]*(?=Emotion Description)/,
+    )?.toString().trim();
     const emotionDescription = entryString.match(
-      /(?<=Emotion Description\n).*(?=\n\nSituation)/,
-    );
+      /(?<=Emotion Description)[\S\s]*(?=Situation)/,
+    )?.toString().trim();
     const situation = entryString.match(
-      /(?<=Situation\n).*(?=\n\nAutomatic Thoughts)/,
-    );
+      // /(?<=Situation[\S\s]*).*(?=[\S\s]*Automatic Thoughts)/,
+      /(?<=Situation)[\S\s]*(?=Automatic Thoughts)/,
+    )?.toString().trim();
     const automaticThoughts = entryString.match(
-      /(?<=Automatic Thoughts\n).*(?=.*)/,
-    );
-    const dateObj = new Date(date![0]);
-    const emotionArr = emotion![0].split(" ");
-
+      // /(?<=Automatic Thoughts[\S\s]*).*(?=[\S\s]*Page.*)/,
+      /(?<=Automatic Thoughts)[\S\s]*(?=Page.*)/,
+    )?.toString().trim();
+    const emotionArr = emotion!.split(" ");
     const emotionName = emotionArr[0], emotionEmoji = emotionArr[1];
+
+    console.log(emotionArr);
 
     return {
       userId: 0,
-      timestamp: dateObj.getTime(),
       emotion: {
         emotionName: emotionName,
         emotionEmoji: emotionEmoji,
-        emotionDescription: emotionDescription![0],
+        emotionDescription: emotionDescription!,
       },
-      situation: situation![0],
-      automaticThoughts: automaticThoughts![0],
+      situation: situation!,
+      automaticThoughts: automaticThoughts!,
       selfiePath: null,
     };
   } catch (err) {
@@ -66,21 +66,23 @@ export async function dropOrphanedSelfies() {
 
   for await (const dirEntry of Deno.readDir("assets/selfies")) {
     for (const regex in dateTimeStrings) {
-      if (!dateTimeStrings[regex].test(dirEntry.name)) Deno.remove(`assets/selfies/${dirEntry.name}`);
+      if (!dateTimeStrings[regex].test(dirEntry.name)) {
+        Deno.remove(`assets/selfies/${dirEntry.name}`);
+      }
     }
   }
 }
 
 export function entryToString(entry: Entry): string {
   return `
-<b>Date Created</b> ${
-    new Date(entry.timestamp).toLocaleString()
+<b>Date Created</b> ${new Date(entry.timestamp!).toLocaleString()}
+${
+    entry.lastEditedTimestamp
+      ? new Date(entry.lastEditedTimestamp).toLocaleString()
+      : ""
   }
-${entry.lastEditedTimestamp ? new Date(entry.lastEditedTimestamp).toLocaleString() : ""}
 <b><u>Emotion</u></b>
-${entry.emotion.emotionName} ${
-    entry.emotion.emotionEmoji || ""
-  }
+${entry.emotion.emotionName} ${entry.emotion.emotionEmoji || ""}
   // Show first entry in list
 <b><u>Emotion Description</u></b>
 ${entry.emotion.emotionDescription}

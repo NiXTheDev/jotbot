@@ -11,7 +11,7 @@ export function insertEntry(entry: Entry) {
     `INSERT INTO entry_db (userId, timestamp, lastEditedTimestamp, situation, automaticThoughts, emotionName, emotionEmoji, emotionDescription, selfiePath) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
   ).run(
     entry.userId,
-    entry.timestamp,
+    entry.timestamp!,
     entry.lastEditedTimestamp || null,
     entry.situation,
     entry.automaticThoughts,

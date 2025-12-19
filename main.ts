@@ -174,7 +174,7 @@ if (import.meta.main) {
     const entries = getAllEntriesByUserId(ctx.inlineQuery.from.id);
     const entriesInlineQueryResults: InlineQueryResult[] = [];
     for (const entry in entries) {
-      const entryDate = new Date(entries[entry].timestamp);
+      const entryDate = new Date(entries[entry].timestamp!);
       // Build string
       const entryString = `
 Date ${entryDate.toLocaleString()}

@@ -119,7 +119,7 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
 
   return await ctx.reply(
     `Entry added at ${
-      new Date(entry.timestamp).toLocaleString()
+      new Date(entry.timestamp!).toLocaleString()
     }!  Thank you for logging your emotion with me.`,
   );
 }

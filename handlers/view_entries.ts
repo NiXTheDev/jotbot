@@ -31,7 +31,7 @@ export async function view_entries(conversation: Conversation, ctx: Context) {
   }</b> of <b>${entries.length}</b>
 
 <b>Date Created</b> ${
-    new Date(entries[currentEntry].timestamp).toLocaleString()
+    new Date(entries[currentEntry].timestamp!).toLocaleString()
   }
 ${entries[currentEntry].lastEditedTimestamp ? lastEditedTimestampString : ""}
 <b><u>Emotion</u></b>
@@ -205,11 +205,9 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
           editEntryMsg.message_id,
           "Message Updated!",
         );
-        // Wait 3 seconds before deleting success message
-        await sleep(3000);
         await ctx.api.deleteMessage(
           ctx.chatId!,
-          viewEntryCtx.msgId! + 1,
+          editEntryMsg.message_id,
         );
         break;
       }
@@ -233,7 +231,7 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
     }</b> of <b>${entries.length}</b>
 
 <b>Date Created</b> ${
-      new Date(entries[currentEntry].timestamp).toLocaleString()
+      new Date(entries[currentEntry].timestamp!).toLocaleString()
     }
 ${entries[currentEntry].lastEditedTimestamp ? lastEditedTimestampString : ""}
 <b><u>Emotion</u></b>

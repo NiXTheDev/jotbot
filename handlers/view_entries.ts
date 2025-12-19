@@ -26,9 +26,9 @@ export async function view_entries(conversation: Conversation, ctx: Context) {
       ? new Date(entries[currentEntry].lastEditedTimestamp!).toLocaleString()
       : ""
   }`;
-  // Show first entry in list
-  let entryString = `
-Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
+  let selfieCaptionString = `Page <b>${
+    currentEntry + 1
+  }</b> of <b>${entries.length}</b>
 
 <b>Date Created</b> ${
     new Date(entries[currentEntry].timestamp).toLocaleString()
@@ -37,9 +37,9 @@ ${entries[currentEntry].lastEditedTimestamp ? lastEditedTimestampString : ""}
 <b><u>Emotion</u></b>
 ${entries[currentEntry].emotion.emotionName} ${
     entries[currentEntry].emotion.emotionEmoji || ""
-  }
-
-<b><u>Emotion Description</u></b>
+  }`;
+  // Show first entry in list
+  let entryString = `<b><u>Emotion Description</u></b>
 ${entries[currentEntry].emotion.emotionDescription}
 
 <b><u>Situation</u></b>
@@ -52,15 +52,16 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
 `;
 
   // Reply initially with first entry before starting loop
-  await ctx.api.sendPhoto(
+  const displaySelfieMsg = await ctx.api.sendPhoto(
     ctx.chatId!,
     new InputFile(entries[currentEntry].selfiePath! || "assets/404.png"),
-    {
-      caption: entryString,
-      parse_mode: "HTML",
-      reply_markup: viewEntriesKeyboard,
-    },
+    { caption: selfieCaptionString, parse_mode: "HTML" },
   );
+
+  const displayEntryMsg = await ctx.api.sendMessage(ctx.chatId!, entryString, {
+    reply_markup: viewEntriesKeyboard,
+    parse_mode: "HTML",
+  });
 
   loop:
   while (true) {
@@ -101,13 +102,10 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
         break;
       }
       case "delete-entry": {
-        await viewEntryCtx.editMessageMedia(
-          InputMediaBuilder.photo(
-            new InputFile(entries[currentEntry].selfiePath! || "assets/404.png"),
-            {
-              caption: "Are you sure you want to delete this entry?",
-            },
-          ),
+        await ctx.api.editMessageText(
+          ctx.chatId!,
+          displayEntryMsg.message_id,
+          "Are you sure you want to delete this entry?",
           {
             reply_markup: new InlineKeyboard().text(
               "✅ Yes",
@@ -155,11 +153,12 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
         break;
       }
       case "view-entry-backbutton": {
-        await viewEntryCtx.deleteMessage();
+        // Close view entries menu
+        await ctx.api.deleteMessages(ctx.chatId!, [displayEntryMsg.message_id, displaySelfieMsg.message_id]);
         break loop;
       }
       case "edit-entry": {
-        await viewEntryCtx.api.sendMessage(
+        const editEntryMsg = await viewEntryCtx.api.sendMessage(
           ctx.chatId!,
           `Copy the entry from above, edit it and send it back to me.`,
         );
@@ -203,7 +202,7 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
         // await viewEntryCtx.api.sendMessage(ctx.chatId!, "Entry Updated!");
         await ctx.api.editMessageText(
           ctx.chatId!,
-          viewEntryCtx.msgId! + 1,
+          editEntryMsg.message_id,
           "Message Updated!",
         );
         // Wait 3 seconds before deleting success message
@@ -221,24 +220,28 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
       }
     }
 
-    console.log(entries[currentEntry]);
+    // console.log(entries[currentEntry]);
 
     lastEditedTimestampString = `<b>Last Edited</b> ${
       entries[currentEntry].lastEditedTimestamp
         ? new Date(entries[currentEntry].lastEditedTimestamp!).toLocaleString()
         : ""
     }`;
-    entryString = `
-Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
 
-<b>Date</b> ${new Date(entries[currentEntry].timestamp).toLocaleString()}
+    selfieCaptionString = `Page <b>${
+      currentEntry + 1
+    }</b> of <b>${entries.length}</b>
+
+<b>Date Created</b> ${
+      new Date(entries[currentEntry].timestamp).toLocaleString()
+    }
 ${entries[currentEntry].lastEditedTimestamp ? lastEditedTimestampString : ""}
 <b><u>Emotion</u></b>
 ${entries[currentEntry].emotion.emotionName} ${
       entries[currentEntry].emotion.emotionEmoji || ""
-    }
+    }`;
 
-<b><u>Emotion Description</u></b>
+    entryString = `<b><u>Emotion Description</u></b>
 ${entries[currentEntry].emotion.emotionDescription}
 
 <b><u>Situation</u></b>
@@ -251,14 +254,22 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
 `;
 
     try {
-      await viewEntryCtx.editMessageMedia(
+      await ctx.api.editMessageText(
+        ctx.chatId!,
+        displayEntryMsg.message_id,
+        entryString,
+        { reply_markup: viewEntriesKeyboard, parse_mode: "HTML" },
+      );
+
+      await ctx.api.editMessageMedia(
+        ctx.chatId!,
+        displaySelfieMsg.message_id,
         InputMediaBuilder.photo(
           new InputFile(entries[currentEntry].selfiePath! || "assets/404.png"),
-          { caption: entryString, parse_mode: "HTML" },
+          { caption: selfieCaptionString, parse_mode: "HTML" },
         ),
-        { reply_markup: viewEntriesKeyboard },
       );
-    } catch (_err) { // Ignore error if message content doesn't change that just means there's only one entry in the db
+    } catch (_err) { // Ignore error if message content doesn't change
       continue;
     }
   }

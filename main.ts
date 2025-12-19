@@ -1,8 +1,4 @@
-import {
-  Bot,
-  Context,
-  InlineQueryResultBuilder,
-} from "grammy";
+import { Bot, Context, InlineQueryResultBuilder } from "grammy";
 import {
   type ConversationFlavor,
   conversations,
@@ -13,10 +9,7 @@ import { register } from "./handlers/register.ts";
 import { existsSync } from "node:fs";
 import { createEntryTable, createUserTable } from "./db/migration.ts";
 import { userExists } from "./models/user.ts";
-import {
-  deleteEntryById,
-  getAllEntriesByUserId,
-} from "./models/entry.ts";
+import { deleteEntryById, getAllEntriesByUserId } from "./models/entry.ts";
 import { InlineQueryResult } from "grammy/types";
 import {
   CommandGroup,
@@ -30,21 +23,34 @@ import { delete_account } from "./handlers/delete_account.ts";
 import { view_entries } from "./handlers/view_entries.ts";
 import { crisisString, helpString } from "./constants/strings.ts";
 import { kitties } from "./handlers/kitties.ts";
+import { exit } from "node:process";
 
 if (import.meta.main) {
   // Check if database is present and if not create one
-  try {
-    // Check if db file exists if not create it and the tables
-    if (!existsSync("db/jotbot.db")) {
+
+  // Check if db file exists if not create it and the tables
+  if (!existsSync("db/jotbot.db")) {
+    try {
       console.log("No Database Found creating a new database");
       createUserTable();
       createEntryTable();
-    } else {
-      console.log("Database found!  Starting bot.");
+    } catch (err) {
+      console.error(`Failed to created database: ${err}`);
     }
-  } catch (err) {
-    console.log(`Error creating database: ${err}`);
+  } else {
+    console.log("Database found!  Starting bot.");
   }
+
+  // Check if selfie directory exists and create it if it doesn't
+  if (!existsSync("assets/selfies")) {
+    try {
+      Deno.mkdir("assets/selfies");
+    } catch (err) {
+      console.error(`Failed to create selfie directory: ${err}`);
+      Deno.exit(1);
+    }
+  }
+
   type JotBotContext =
     & Context
     & CommandsFlavor
@@ -166,7 +172,6 @@ if (import.meta.main) {
   );
 
   jotBot.on("inline_query", async (ctx) => {
-    console.log((await jotBot.api.getUpdates()));
     const entries = getAllEntriesByUserId(ctx.inlineQuery.from.id);
     const entriesInlineQueryResults: InlineQueryResult[] = [];
     for (const entry in entries) {

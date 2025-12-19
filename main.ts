@@ -178,7 +178,6 @@ ${entries[entry].situation}
 <b><u>Automatic Thoughts</u></b>
 ${entries[entry].automaticThoughts}
 `;
-
       entriesInlineQueryResults.push(
         InlineQueryResultBuilder.article(
           String(entries[entry].id),

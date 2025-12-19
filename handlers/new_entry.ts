@@ -45,7 +45,7 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
     emotionDescription: emotionDescriptionCtx.message.text,
   };
 
-  ctx.reply("Would you like to take a selfie?", {
+  const askSelfieMsg = await ctx.reply("Would you like to take a selfie?", {
     reply_markup: new InlineKeyboard().text("✅ Yes", "selfie-yes").text(
       "⛔ No",
       "selfie-no",
@@ -60,7 +60,7 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
   let selfiePath: string | null = "";
   if (selfieCtx.callbackQuery.data === "selfie-yes") {
     try {
-      await ctx.reply("Send me a selfie.");
+      await ctx.api.editMessageText(ctx.chatId!, askSelfieMsg.message_id, "Send me a selfie.");
       const selfiePathCtx = await conversation.waitFor("message:photo");
 
       const tmpFile = await selfiePathCtx.getFile();
@@ -88,7 +88,7 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
           await selfieResponse.body!.pipeTo(file.writable);
         });
 
-        await selfiePathCtx.reply(`Selfie saved successfully!`);
+        await ctx.reply(`Selfie saved successfully!`);
       }
     } catch (err) {
       console.log(`Jotbot Error: Failed to save selfie: ${err}`);

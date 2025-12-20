@@ -23,6 +23,8 @@ import { delete_account } from "./handlers/delete_account.ts";
 import { view_entries } from "./handlers/view_entries.ts";
 import { crisisString, helpString } from "./constants/strings.ts";
 import { kitties } from "./handlers/kitties.ts";
+import { phq9_assessment } from "./handlers/phq9_assessment.ts";
+import { gad7_assessment } from "./handlers/gad7_assessment.ts";
 
 if (import.meta.main) {
   // Check if database is present and if not create one
@@ -70,6 +72,8 @@ if (import.meta.main) {
   jotBot.use(createConversation(view_entries));
   jotBot.use(createConversation(delete_account));
   jotBot.use(createConversation(kitties));
+  jotBot.use(createConversation(phq9_assessment));
+  jotBot.use(createConversation(gad7_assessment));
 
   jotBotCommands.command("start", "Starts the bot.", async (ctx) => {
     // Check if user exists in Database
@@ -161,7 +165,7 @@ if (import.meta.main) {
   );
 
   jotBotCommands.command(
-    /(🆘|(?:sos)|)/, // ?: matches upper or lower case so no matter how sos is typed it will recognize it.
+    /(🆘|(?:sos))/, // ?: matches upper or lower case so no matter how sos is typed it will recognize it.
     "Show helplines and other crisis information.",
     async (ctx) => {
       await ctx.reply(crisisString.replace("<username>", ctx.from?.username!), {
@@ -169,6 +173,22 @@ if (import.meta.main) {
       });
     },
   );
+
+  jotBotCommands.command(
+    "am_i_depressed",
+    "Use PHQ-9 to attempt to rate user's depression.",
+    async (ctx) => {
+      await ctx.conversation.enter("phq9_assessment");
+    }
+  )
+
+  jotBotCommands.command(
+    "am_i_anxious",
+    "Use the GAD-7 to attempt to rate user's anxiety level",
+    async (ctx) => {
+      await ctx.conversation.enter("gad7_assessment");
+    }
+  )
 
   jotBot.on("inline_query", async (ctx) => {
     const entries = getAllEntriesByUserId(ctx.inlineQuery.from.id);

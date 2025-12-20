@@ -7,7 +7,7 @@ import {
 } from "../models/entry.ts";
 import { Entry } from "../types/types.ts";
 import { viewEntriesKeyboard } from "../utils/keyboards.ts";
-import { entryFromString, sleep } from "../utils/misc.ts";
+import { entryFromString } from "../utils/misc.ts";
 import { InputFile } from "grammy/types";
 
 export async function view_entries(conversation: Conversation, ctx: Context) {
@@ -39,14 +39,14 @@ ${entries[currentEntry].emotion.emotionName} ${
     entries[currentEntry].emotion.emotionEmoji || ""
   }`;
   // Show first entry in list
-  let entryString = `<b><u>Emotion Description</u></b>
-${entries[currentEntry].emotion.emotionDescription}
-
-<b><u>Situation</u></b>
+  let entryString = `<b><u>Situation</u></b>
 ${entries[currentEntry].situation}
 
 <b><u>Automatic Thoughts</u></b>
 ${entries[currentEntry].automaticThoughts}
+
+<b><u>Emotion Description</u></b>
+${entries[currentEntry].emotion.emotionDescription}
 
 Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
 `;

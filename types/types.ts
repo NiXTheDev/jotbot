@@ -1,16 +1,16 @@
 export enum DepressionSeverity {
-  NONE_MINIMAL = "None-minimal",
-  MILD = "Mild",
-  MODERATE = "Moderate",
-  MODERATELY_SEVERE = "Moderately Severe",
-  SEVERE = "SEVERE",
+  NONE_MINIMAL = "None to Minimal Depression",
+  MILD = "Mild Depression",
+  MODERATE = "Moderate Depression",
+  MODERATELY_SEVERE = "Moderate to Severe Depression",
+  SEVERE = "Severe Depression",
 }
 
 export enum AnxietySeverity {
-  MINIMAL_ANXIETY = "Minimal anxiety",
-  MILD_ANXIETY = "Mild anxiety",
-  MODERATE_ANXIETY = "Moderate anxiety",
-  MODERATE_TO_SEVERE_ANXIETY = "Moderate to severe anxiety",
+  MINIMAL_ANXIETY = "Minimal Anxiety",
+  MILD_ANXIETY = "Mild Anxiety",
+  MODERATE_ANXIETY = "Moderate Anxiety",
+  MODERATE_TO_SEVERE_ANXIETY = "Moderate to Severe Anxiety",
 }
 
 export type Entry = {
@@ -47,7 +47,7 @@ export type User = {
 export type PHQ9Score = {
   id: number; // Id of this time the test was taken
   userId: number; // Telegram user ID this score is attatched to
-  timestamp: Date; // When the test was taken
+  timestamp: number; // When the test was taken
   score: number; // The overall depression score
   severity: DepressionSeverity; // The severity of the depression
   action: string; // What having that severe of depression can be like
@@ -60,7 +60,7 @@ export type GAD7Score = {
   timestamp: number;
   score: number;
   severity: AnxietySeverity;
-  action?: string;
+  action: string;
   impactQuestionAnswer: string;
 };
 

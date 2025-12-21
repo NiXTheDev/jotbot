@@ -18,7 +18,11 @@ import {
   type CommandsFlavor,
 } from "@grammyjs/commands";
 import { FileFlavor, hydrateFiles } from "@grammyjs/files";
-import { mainCustomKeyboard, registerKeyboard } from "./utils/keyboards.ts";
+import {
+  mainCustomKeyboard,
+  registerKeyboard,
+  settingsKeyboard,
+} from "./utils/keyboards.ts";
 import { delete_account } from "./handlers/delete_account.ts";
 import { view_entries } from "./handlers/view_entries.ts";
 import { crisisString, helpString } from "./constants/strings.ts";
@@ -27,6 +31,7 @@ import { phq9_assessment } from "./handlers/phq9_assessment.ts";
 import { gad7_assessment } from "./handlers/gad7_assessment.ts";
 import { dbFile } from "./constants/paths.ts";
 import { createDatabase } from "./utils/db.ts";
+import { getSettingsById, updateSettings } from "./models/settings.ts";
 
 if (import.meta.main) {
   // Check if database is present and if not create one
@@ -103,6 +108,10 @@ if (import.meta.main) {
     await ctx.reply("Okay, see ya later!");
     Deno.addSignalListener("SIGINT", () => jotBot.stop());
     Deno.addSignalListener("SIGTERM", () => jotBot.stop());
+  });
+
+  jotBotCommands.command("settings", "Open the settings menu", async (ctx) => {
+    await ctx.reply("Settings", { reply_markup: settingsKeyboard });
   });
 
   jotBotCommands.command("kitties", "Start the kitty engine!", async (ctx) => {
@@ -231,6 +240,38 @@ ${entries[entry].automaticThoughts}
 
   jotBot.callbackQuery("new-entry", async (ctx) => {
     await ctx.conversation.enter("new_entry");
+  });
+
+  jotBot.callbackQuery(["smhs", "change-selfie-path", "settings-back"], async (ctx) => {
+    switch (ctx.callbackQuery.data) {
+      case "smhs": {
+        const settings = getSettingsById(ctx.from?.id!, dbFile);
+        console.log(settings);
+        if (settings?.storeMentalHealthInfo) {
+          settings.storeMentalHealthInfo = false;
+          await ctx.editMessageText(`Mental health info will not be saved`, {
+            reply_markup: settingsKeyboard,
+          });
+        } else {
+          settings!.storeMentalHealthInfo = true;
+          await ctx.editMessageText(`Mental health info will be saved.`, {
+            reply_markup: settingsKeyboard,
+          });
+        }
+        updateSettings(ctx.from?.id!, settings!, dbFile);
+        break;
+      }
+      case "change-selfie-path": {
+        break;
+      }
+      case "settings-back": {
+        ctx.editMessageText("Done with settings.");
+        break;
+      }
+      default: {
+        break;
+      }
+    }
   });
 
   jotBot.catch((err) => {

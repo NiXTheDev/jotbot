@@ -46,3 +46,8 @@ export const keyboardFinal: InlineKeyboard = new InlineKeyboard()
   .text("Somewhat difficult").row()
   .text("Very difficult").row()
   .text("Extremely difficult");
+
+export const settingsKeyboard: InlineKeyboard = new InlineKeyboard()
+  .text("Save Mental Health Scores", "smhs").row()
+  .text("Change selfie path", "change-selfie-path").row()
+  .text("Back", "settings-back");

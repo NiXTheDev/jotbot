@@ -1,4 +1,4 @@
-import { assertEquals, assertExists, assertNotEquals } from "@std/assert";
+import { assertEquals } from "@std/assert";
 import { insertGadScore } from "../models/gad7_score.ts";
 import { AnxietySeverity, GAD7Score, User } from "../types/types.ts";
 import { createGadScoreTable, createUserTable } from "../db/migration.ts";

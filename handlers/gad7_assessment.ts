@@ -8,6 +8,10 @@ import {
 } from "../constants/strings.ts";
 import { GAD7Score } from "../types/types.ts";
 import { calcGad7Score } from "../utils/misc.ts";
+import { getSettingsById } from "../models/settings.ts";
+import { userExists } from "../models/user.ts";
+import { dbFile } from "../constants/paths.ts";
+import { insertGadScore } from "../models/gad7_score.ts";
 
 export async function gad7_assessment(
   conversation: Conversation,
@@ -116,4 +120,17 @@ Dealing with this level of anxiety is making your life ${gad7Score.impactQuestio
 ${gad7Score.action}`,
     { parse_mode: "HTML" },
   );
+
+  if (userExists(ctx.from?.id!, dbFile)) {
+    const settings = getSettingsById(ctx.from?.id!, dbFile);
+
+    if (settings?.storeMentalHealthInfo) {
+      insertGadScore(gad7Score, dbFile);
+      await ctx.reply("Score saved!");
+    } else {
+      await ctx.reply("Scores not saved.");
+    }
+  } else {
+    await ctx.reply("It looks like you haven't registered, you can register by running /register to store you scores and keep track of your mental health.");
+  }
 }

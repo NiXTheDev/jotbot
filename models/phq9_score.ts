@@ -1,5 +1,5 @@
 import { PathLike } from "node:fs";
-import { DepressionSeverity, PHQ9Score } from "../types/types.ts";
+import { PHQ9Score } from "../types/types.ts";
 import { DatabaseSync } from "node:sqlite";
 import { depressionSeverityStringToEnum } from "../utils/misc.ts";
 

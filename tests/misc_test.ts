@@ -1,7 +1,6 @@
 import { assertEquals } from "@std/assert";
 import { entryFromString, entryToString } from "../utils/misc.ts";
-import { Entry, GAD7Score } from "../types/types.ts";
-import test from "node:test";
+import { Entry } from "../types/types.ts";
 
 Deno.test("Test entryFromString()", () => {
   const testEntryString = `Page 1 of 15

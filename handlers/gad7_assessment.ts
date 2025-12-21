@@ -131,6 +131,8 @@ ${gad7Score.action}`,
       await ctx.reply("Scores not saved.");
     }
   } else {
-    await ctx.reply("It looks like you haven't registered, you can register by running /register to store you scores and keep track of your mental health.");
+    await ctx.reply(
+      "It looks like you haven't registered, you can register by running /register to store you scores and keep track of your mental health.",
+    );
   }
 }

@@ -8,6 +8,10 @@ import {
   finalCallBackQueries,
   questionCallBackQueries,
 } from "../constants/strings.ts";
+import { insertPhqScore } from "../models/phq9_score.ts";
+import { dbFile } from "../constants/paths.ts";
+import { getSettingsById } from "../models/settings.ts";
+import { userExists } from "../models/user.ts";
 
 export async function phq9_assessment(
   conversation: Conversation,
@@ -115,4 +119,19 @@ Dealing with this level of depression is making your life ${phq9Score.impactQues
 ${phq9Score.action}`,
     { parse_mode: "HTML" },
   );
+
+  if (userExists(ctx.from?.id!, dbFile)) {
+    const settings = getSettingsById(ctx.from?.id!, dbFile);
+
+    if (settings?.storeMentalHealthInfo) {
+      insertPhqScore(phq9Score, dbFile);
+      await ctx.reply("Score saved!");
+    } else {
+      await ctx.reply("Scores not saved.");
+    }
+  } else {
+    await ctx.reply(
+      "It looks like you haven't registered, you can register by running /register to store you scores and keep track of your mental health.",
+    );
+  }
 }

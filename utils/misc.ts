@@ -84,16 +84,17 @@ export function entryFromString(entryString: string): Entry {
 // }
 
 export function entryToString(entry: Entry): string {
-  return `
-<b>Date Created</b> ${new Date(entry.timestamp!).toLocaleString()}
-${
-    entry.lastEditedTimestamp
-      ? new Date(entry.lastEditedTimestamp).toLocaleString()
-      : ""
+  let lastEditedString: string = "";
+  if (entry.lastEditedTimestamp !== undefined) {
+    lastEditedString = `<b>Last Edited</b> ${
+      new Date(entry.lastEditedTimestamp!).toLocaleString()
+    }`;
   }
+  return `<b>Date Created</b> ${new Date(entry.timestamp!).toLocaleString()}
+${lastEditedString}
 <b><u>Emotion</u></b>
 ${entry.emotion.emotionName} ${entry.emotion.emotionEmoji || ""}
-  // Show first entry in list
+
 <b><u>Emotion Description</u></b>
 ${entry.emotion.emotionDescription}
 
@@ -101,8 +102,7 @@ ${entry.emotion.emotionDescription}
 ${entry.situation}
 
 <b><u>Automatic Thoughts</u></b>
-${entry.automaticThoughts}
-`;
+${entry.automaticThoughts}`;
 }
 
 export function calcPhq9Score(
@@ -138,7 +138,7 @@ export function calcPhq9Score(
     severity: depressionSeverity!,
     action: depressionExplanation!,
     impactQuestionAnswer: impactQuestionAnswer,
-    timestamp: new Date(Date.now()),
+    timestamp: Date.now(),
   };
 }
 
@@ -174,4 +174,66 @@ export function calcGad7Score(
     action: anxietyExplanation!,
     impactQuestionAnswer: impactQestionAnswer,
   };
+}
+
+export function depressionSeverityStringToEnum(
+  severityString: string,
+): DepressionSeverity {
+  let severityEnum: DepressionSeverity;
+  switch (severityString) {
+    // Depression Cases
+    case "None to Minimal Depression": {
+      severityEnum = DepressionSeverity.NONE_MINIMAL;
+      break;
+    }
+    case "Mild Depression": {
+      severityEnum = DepressionSeverity.MILD;
+      break;
+    }
+    case "Moderate Depression": {
+      severityEnum = DepressionSeverity.MODERATE;
+      break;
+    }
+    case "Moderate to Severe Depression": {
+      severityEnum = DepressionSeverity.MODERATELY_SEVERE;
+      break;
+    }
+    case "Severe Depression": {
+      severityEnum = DepressionSeverity.SEVERE;
+      break;
+    }
+
+    default: {
+      throw new Error("Failed to convert string to enum.");
+    }
+  }
+  return severityEnum;
+}
+
+export function anxietySeverityStringToEnum(
+  severityString: string,
+): AnxietySeverity {
+  let severityEnum;
+  switch (severityString) {
+    case "Minimal Anxiety": {
+      severityEnum = AnxietySeverity.MINIMAL_ANXIETY;
+      break;
+    }
+    case "Mild Anxiety": {
+      severityEnum = AnxietySeverity.MILD_ANXIETY;
+      break;
+    }
+    case "Moderate Anxiety": {
+      severityEnum = AnxietySeverity.MODERATE_ANXIETY;
+      break;
+    }
+    case "Moderate to Severe Anxiety": {
+      severityEnum = AnxietySeverity.MODERATE_TO_SEVERE_ANXIETY;
+      break;
+    }
+    default: {
+      throw new Error("Failed to convert string to enum.");
+    }
+  }
+  return severityEnum;
 }

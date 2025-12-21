@@ -7,7 +7,7 @@ import {
 import { new_entry } from "./handlers/new_entry.ts";
 import { register } from "./handlers/register.ts";
 import { existsSync } from "node:fs";
-import { createEntryTable, createUserTable } from "./db/migration.ts";
+// import { createEntryTable, createUserTable } from "./db/migration.ts";
 import { userExists } from "./models/user.ts";
 import { deleteEntryById, getAllEntriesByUserId } from "./models/entry.ts";
 import { InlineQueryResult } from "grammy/types";
@@ -26,6 +26,7 @@ import { kitties } from "./handlers/kitties.ts";
 import { phq9_assessment } from "./handlers/phq9_assessment.ts";
 import { gad7_assessment } from "./handlers/gad7_assessment.ts";
 import { dbFile } from "./constants/paths.ts";
+import { createDatabase } from "./utils/db.ts";
 
 if (import.meta.main) {
   // Check if database is present and if not create one
@@ -34,8 +35,7 @@ if (import.meta.main) {
   if (!existsSync(dbFile)) {
     try {
       console.log("No Database Found creating a new database");
-      createUserTable(dbFile);
-      createEntryTable(dbFile);
+      createDatabase(dbFile);
     } catch (err) {
       console.error(`Failed to created database: ${err}`);
     }
@@ -224,17 +224,6 @@ ${entries[entry].automaticThoughts}
       is_personal: true,
     });
   });
-
-  // jotBot.on("chosen_inline_result", (ctx) => {
-  //   console.log(`Inline Result Chosen: ${ctx.chosenInlineResult.result_id}`);
-  //   const entry = getEntryById(Number(ctx.chosenInlineResult.result_id));
-
-  //   // Send the entry
-  //   jotBot.api.sendPhoto(ctx.in, new InputFile(entry.selfiePath!));
-  //   jotBot.api.sendMessage(ctx.chatId!, entryToString(entry), {
-  //     parse_mode: "HTML",
-  //   });
-  // });
 
   jotBot.callbackQuery("register-new-user", async (ctx) => {
     await ctx.conversation.enter("register");

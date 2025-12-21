@@ -200,6 +200,16 @@ if (import.meta.main) {
     },
   );
 
+  // jotBotCommands.command(
+  //   "mental_health_snapshot",
+  //   "Show a snapshot of your mental health based on your data.",
+  //   async (ctx) => {
+  //     // Build snapshot
+  //     const lastDepressionScore =
+  //     await ctx.reply(`You mental health snapshot:`)
+  //   },
+  // );
+
   jotBot.on("inline_query", async (ctx) => {
     const entries = getAllEntriesByUserId(ctx.inlineQuery.from.id, dbFile);
     const entriesInlineQueryResults: InlineQueryResult[] = [];
@@ -242,37 +252,40 @@ ${entries[entry].automaticThoughts}
     await ctx.conversation.enter("new_entry");
   });
 
-  jotBot.callbackQuery(["smhs", "change-selfie-path", "settings-back"], async (ctx) => {
-    switch (ctx.callbackQuery.data) {
-      case "smhs": {
-        const settings = getSettingsById(ctx.from?.id!, dbFile);
-        console.log(settings);
-        if (settings?.storeMentalHealthInfo) {
-          settings.storeMentalHealthInfo = false;
-          await ctx.editMessageText(`Mental health info will not be saved`, {
-            reply_markup: settingsKeyboard,
-          });
-        } else {
-          settings!.storeMentalHealthInfo = true;
-          await ctx.editMessageText(`Mental health info will be saved.`, {
-            reply_markup: settingsKeyboard,
-          });
+  jotBot.callbackQuery(
+    ["smhs", "change-selfie-path", "settings-back"],
+    async (ctx) => {
+      switch (ctx.callbackQuery.data) {
+        case "smhs": {
+          const settings = getSettingsById(ctx.from?.id!, dbFile);
+          console.log(settings);
+          if (settings?.storeMentalHealthInfo) {
+            settings.storeMentalHealthInfo = false;
+            await ctx.editMessageText(`Mental health info will not be saved`, {
+              reply_markup: settingsKeyboard,
+            });
+          } else {
+            settings!.storeMentalHealthInfo = true;
+            await ctx.editMessageText(`Mental health info will be saved.`, {
+              reply_markup: settingsKeyboard,
+            });
+          }
+          updateSettings(ctx.from?.id!, settings!, dbFile);
+          break;
         }
-        updateSettings(ctx.from?.id!, settings!, dbFile);
-        break;
+        case "change-selfie-path": {
+          break;
+        }
+        case "settings-back": {
+          ctx.editMessageText("Done with settings.");
+          break;
+        }
+        default: {
+          break;
+        }
       }
-      case "change-selfie-path": {
-        break;
-      }
-      case "settings-back": {
-        ctx.editMessageText("Done with settings.");
-        break;
-      }
-      default: {
-        break;
-      }
-    }
-  });
+    },
+  );
 
   jotBot.catch((err) => {
     console.log(`JotBot Error: ${err.message}`);

@@ -21,7 +21,7 @@ const testGadScore: GAD7Score = {
   impactQuestionAnswer: "Test",
 };
 
-Deno.test("Test insertGadScore()", () => {
+Deno.test("Test insertGadScore()", async () => {
   // Create test Database
   createGadScoreTable(testDbFile);
   createUserTable(testDbFile);
@@ -31,5 +31,5 @@ Deno.test("Test insertGadScore()", () => {
   assertEquals(result?.changes, 1);
 
   // Clean up test db
-  Deno.remove(testDbFile);
+  await Deno.remove(testDbFile);
 });

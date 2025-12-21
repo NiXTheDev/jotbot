@@ -36,7 +36,7 @@ const testUser: User = {
   joinedDate: new Date(Date.now()),
 };
 
-Deno.test("Test insertEntry()", () => {
+Deno.test("Test insertEntry()", async () => {
   // Create test Database
   createUserTable(testDbFile);
   createEntryTable(testDbFile);
@@ -55,10 +55,10 @@ Deno.test("Test insertEntry()", () => {
   assertEquals(queryResult.lastInsertRowid, 1);
 
   // Clean up
-  Deno.remove(testDbFile);
+  await Deno.remove(testDbFile);
 });
 
-Deno.test("Test updateEntry()", () => {
+Deno.test("Test updateEntry()", async () => {
   // Create test Database
   createUserTable(testDbFile);
   createEntryTable(testDbFile);
@@ -78,10 +78,10 @@ Deno.test("Test updateEntry()", () => {
   assertEquals(queryResult.lastInsertRowid, 0);
 
   // Clean up
-  Deno.remove(testDbFile);
+  await Deno.remove(testDbFile);
 });
 
-Deno.test("Test deleteEntryById()", () => {
+Deno.test("Test deleteEntryById()", async () => {
   // Create test Database
   createUserTable(testDbFile);
   createEntryTable(testDbFile);
@@ -96,10 +96,10 @@ Deno.test("Test deleteEntryById()", () => {
   assertEquals(queryResult?.lastInsertRowid, 0);
 
   // Clean up
-  Deno.remove(testDbFile);
+  await Deno.remove(testDbFile);
 });
 
-Deno.test("Test getEntryById()", () => {
+Deno.test("Test getEntryById()", async () => {
   // Create test Database
   createUserTable(testDbFile);
   createEntryTable(testDbFile);
@@ -114,10 +114,10 @@ Deno.test("Test getEntryById()", () => {
   assertObjectMatch(testEntry, entry);
 
   // Clean up
-  Deno.remove(testDbFile);
+  await Deno.remove(testDbFile);
 });
 
-Deno.test("Test getAllEntriesByUserId()", () => {
+Deno.test("Test getAllEntriesByUserId()", async () => {
   // Create test Database
   createUserTable(testDbFile);
   createEntryTable(testDbFile);
@@ -135,5 +135,5 @@ Deno.test("Test getAllEntriesByUserId()", () => {
     assertEquals(entries[entry].id, Number(entry) + 1);
   }
 
-  Deno.remove(testDbFile);
+  await Deno.remove(testDbFile);
 });

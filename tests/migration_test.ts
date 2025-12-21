@@ -66,7 +66,7 @@ Deno.test("Test createUserTable()", () => {
   assertEquals(table?.name, "user_db");
 });
 
-Deno.test("Test createSettingsTable()", () => {
+Deno.test("Test createSettingsTable()", async () => {
   // Create test gad score table
   createSettingsTable(testDbPath);
 
@@ -78,5 +78,5 @@ Deno.test("Test createSettingsTable()", () => {
 
   assertNotEquals(table, undefined);
   assertEquals(table?.name, "settings_db");
-  Deno.remove(testDbPath);
+  await Deno.remove(testDbPath);
 });

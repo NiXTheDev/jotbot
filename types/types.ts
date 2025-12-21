@@ -65,8 +65,8 @@ export type GAD7Score = {
 };
 
 export type Settings = {
-  id?: number,
-  userId: number,
-  storeMentalHealthInfo: boolean,
-  selfieDirectory: string
-}
+  id?: number;
+  userId: number;
+  storeMentalHealthInfo: boolean;
+  selfieDirectory: string;
+};

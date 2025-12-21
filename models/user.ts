@@ -1,15 +1,17 @@
 import { DatabaseSync } from "node:sqlite";
 import { User } from "../types/types.ts";
+// import { dbFilePath } from "../constants/paths.ts";
+import { PathLike } from "node:fs";
 
-export function insertUser(user: User) {
+export function insertUser(user: User, dbPath: PathLike) {
   try {
-    const db = new DatabaseSync("db/jotbot.db");
+    const db = new DatabaseSync(dbPath);
     db.exec("PRAGMA foreign_keys = ON;");
     if (
       !(db.prepare("PRAGMA integrity_check;").get()?.integrity_check === "ok")
     ) throw new Error("JotBot Error: Databaes integrety check failed!");
 
-    db.prepare(`
+    const queryResult = db.prepare(`
         INSERT INTO user_db (telegramId, username, dob, joinedDate) VALUES (?, ?, ?, ?);
     `).run(
       user.telegramId,
@@ -19,6 +21,7 @@ export function insertUser(user: User) {
     );
 
     db.close();
+    return queryResult;
   } catch (err) {
     console.error(
       `Failed to insert user: ${user.username} into database: ${err}`,
@@ -26,9 +29,9 @@ export function insertUser(user: User) {
   }
 }
 
-export function deleteUser(userTelegramId: number) {
+export function deleteUser(userTelegramId: number, dbFile: PathLike) {
   try {
-    const db = new DatabaseSync("db/jotbot.db");
+    const db = new DatabaseSync(dbFile);
     db.exec("PRAGMA foreign_keys = ON;");
     if (
       !(db.prepare("PRAGMA integrity_check;").get()?.integrity_check === "ok")
@@ -45,10 +48,10 @@ export function deleteUser(userTelegramId: number) {
   }
 }
 
-export function userExists(userTelegramId: number): boolean {
+export function userExists(userTelegramId: number, dbFile: PathLike): boolean {
   let ue: number = 0;
   try {
-    const db = new DatabaseSync("db/jotbot.db");
+    const db = new DatabaseSync(dbFile);
     db.exec("PRAGMA foreign_keys = ON;");
     if (
       !(db.prepare("PRAGMA integrity_check;").get()?.integrity_check === "ok")

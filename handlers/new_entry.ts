@@ -3,6 +3,7 @@ import { Conversation } from "@grammyjs/conversations";
 import { Emotion, Entry } from "../types/types.ts";
 import { insertEntry } from "../models/entry.ts";
 import { telegramDownloadUrl } from "../constants/strings.ts";
+import { dbFile } from "../constants/paths.ts";
 
 export async function new_entry(conversation: Conversation, ctx: Context) {
   // Describe situation
@@ -111,7 +112,7 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
   };
 
   try {
-    await conversation.external(() => insertEntry(entry));
+    await conversation.external(() => insertEntry(entry, dbFile));
   } catch (err) {
     console.log(`Failed to insert Entry: ${err}`);
     return await ctx.reply(`Failed to insert entry: ${err}`);

@@ -25,16 +25,17 @@ import { crisisString, helpString } from "./constants/strings.ts";
 import { kitties } from "./handlers/kitties.ts";
 import { phq9_assessment } from "./handlers/phq9_assessment.ts";
 import { gad7_assessment } from "./handlers/gad7_assessment.ts";
+import { dbFile } from "./constants/paths.ts";
 
 if (import.meta.main) {
   // Check if database is present and if not create one
 
   // Check if db file exists if not create it and the tables
-  if (!existsSync("db/jotbot.db")) {
+  if (!existsSync(dbFile)) {
     try {
       console.log("No Database Found creating a new database");
-      createUserTable();
-      createEntryTable();
+      createUserTable(dbFile);
+      createEntryTable(dbFile);
     } catch (err) {
       console.error(`Failed to created database: ${err}`);
     }
@@ -79,7 +80,7 @@ if (import.meta.main) {
     // Check if user exists in Database
     const userTelegramId = ctx.from?.id!;
 
-    if (!userExists(userTelegramId)) {
+    if (!userExists(userTelegramId, dbFile)) {
       ctx.reply(
         `Welcome ${ctx.from?.username}!  I can see you are a new user, would you like to register now?`,
         {
@@ -115,7 +116,7 @@ if (import.meta.main) {
   });
 
   jotBotCommands.command("new_entry", "Create new entry", async (ctx) => {
-    if (!userExists(ctx.from?.id!)) {
+    if (!userExists(ctx.from?.id!, dbFile)) {
       await ctx.reply(
         `Hello ${ctx.from?.username}!  It looks like you haven't completed the onboarding process yet.  Would you like to register to begin the registration process?`,
         { reply_markup: registerKeyboard },
@@ -129,7 +130,7 @@ if (import.meta.main) {
     "view_entries",
     "View current entries.",
     async (ctx) => {
-      if (!userExists(ctx.from?.id!)) {
+      if (!userExists(ctx.from?.id!, dbFile)) {
         await ctx.reply(
           `Hello ${ctx.from?.username}!  It looks like you haven't completed the onboarding process yet.  Would you like to register to begin the registration process?`,
           { reply_markup: registerKeyboard },
@@ -160,7 +161,7 @@ if (import.meta.main) {
         entryId = Number(ctx.message!.text.split(" ")[1]);
       }
 
-      deleteEntryById(entryId);
+      deleteEntryById(entryId, dbFile);
     },
   );
 
@@ -191,7 +192,7 @@ if (import.meta.main) {
   )
 
   jotBot.on("inline_query", async (ctx) => {
-    const entries = getAllEntriesByUserId(ctx.inlineQuery.from.id);
+    const entries = getAllEntriesByUserId(ctx.inlineQuery.from.id, dbFile);
     const entriesInlineQueryResults: InlineQueryResult[] = [];
     for (const entry in entries) {
       const entryDate = new Date(entries[entry].timestamp!);

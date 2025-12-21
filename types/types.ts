@@ -16,8 +16,8 @@ export enum AnxietySeverity {
 export type Entry = {
   id?: number;
   userId: number;
-  timestamp?: number;
-  lastEditedTimestamp?: number;
+  timestamp: number;
+  lastEditedTimestamp?: number | null;
   emotion: Emotion;
   situation: string;
   automaticThoughts: string;
@@ -60,6 +60,6 @@ export type GAD7Score = {
   timestamp: number;
   score: number;
   severity: AnxietySeverity;
-  action: string;
+  action?: string;
   impactQuestionAnswer: string;
 }

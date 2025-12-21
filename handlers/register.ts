@@ -2,6 +2,7 @@ import { Context, InlineKeyboard } from "grammy";
 import { Conversation } from "@grammyjs/conversations";
 import { insertUser } from "../models/user.ts";
 import { User } from "../types/types.ts";
+import { dbFile } from "../constants/paths.ts";
 
 export async function register(conversation: Conversation, ctx: Context) {
   let dob;
@@ -35,7 +36,7 @@ export async function register(conversation: Conversation, ctx: Context) {
 
   console.log(user);
   try {
-    insertUser(user);
+    insertUser(user, dbFile);
   } catch (err) {
     ctx.reply(`Failed to save user ${user.username}: ${err}`);
     console.log(`Error inserting user ${user.username}: ${err}`);

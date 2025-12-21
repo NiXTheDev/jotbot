@@ -9,10 +9,11 @@ import { Entry } from "../types/types.ts";
 import { viewEntriesKeyboard } from "../utils/keyboards.ts";
 import { entryFromString } from "../utils/misc.ts";
 import { InputFile } from "grammy/types";
+import { dbFile } from "../constants/paths.ts";
 
 export async function view_entries(conversation: Conversation, ctx: Context) {
   let entries: Entry[] = await conversation.external(() =>
-    getAllEntriesByUserId(ctx.from?.id!)
+    getAllEntriesByUserId(ctx.from?.id!, dbFile)
   );
 
   // If there are no stored entries inform user and stop conversation
@@ -132,12 +133,12 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
 
           // Delete the current entry
           await conversation.external(() =>
-            deleteEntryById(entries[currentEntry].id!)
+            deleteEntryById(entries[currentEntry].id!, dbFile)
           );
 
           // Refresh entries array
           entries = await conversation.external(() =>
-            getAllEntriesByUserId(ctx.from?.id!)
+            getAllEntriesByUserId(ctx.from?.id!, dbFile)
           );
 
           if (entries.length === 0) {
@@ -186,7 +187,7 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
 
         try {
           await conversation.external(() =>
-            updateEntry(entryToEdit.id!, entryToEdit)
+            updateEntry(entryToEdit.id!, entryToEdit, dbFile)
           );
         } catch (err) {
           await editEntryCtx.reply(
@@ -196,7 +197,7 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
         }
         // Refresh entries
         entries = await conversation.external(() =>
-          getAllEntriesByUserId(ctx.from?.id!)
+          getAllEntriesByUserId(ctx.from?.id!, dbFile)
         );
 
         // await viewEntryCtx.api.sendMessage(ctx.chatId!, "Entry Updated!");

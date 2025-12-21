@@ -2,6 +2,7 @@ import { Context } from "grammy";
 import { Conversation } from "@grammyjs/conversations";
 import { deleteAccountConfirmKeyboard } from "../utils/keyboards.ts";
 import { deleteUser } from "../models/user.ts";
+import { dbFile } from "../constants/paths.ts";
 
 export async function delete_account(conversation: Conversation, ctx: Context) {
   try {
@@ -16,7 +17,7 @@ export async function delete_account(conversation: Conversation, ctx: Context) {
     ]);
 
     if (deleteAccountCtx.callbackQuery.data === "delete-account-yes") {
-      await conversation.external(() => deleteUser(ctx.from?.id!));
+      await conversation.external(() => deleteUser(ctx.from?.id!, dbFile));
     } else if (deleteAccountCtx.callbackQuery.data === "delete-account-no") {
       conversation.halt();
       return await deleteAccountCtx.editMessageText("No changes made!");

@@ -5,7 +5,7 @@ import {
   GAD7Score,
   PHQ9Score,
 } from "../types/types.ts";
-import { getAllEntriesByUserId } from "../models/entry.ts";
+// import { getAllEntriesByUserId } from "../models/entry.ts";
 import {
   anxietyExplanations,
   depressionExplanations,
@@ -38,6 +38,7 @@ export function entryFromString(entryString: string): Entry {
 
     return {
       userId: 0,
+      timestamp: 0,
       emotion: {
         emotionName: emotionName,
         emotionEmoji: emotionEmoji,
@@ -52,36 +53,36 @@ export function entryFromString(entryString: string): Entry {
   }
 }
 
-export async function dropOrphanedSelfies() {
-  const entries = getAllEntriesByUserId(779473861);
-  const selfiePaths: string[] = [];
-  for (const entry in entries) {
-    if (!entries[entry].selfiePath) continue;
-    selfiePaths.push(entries[entry].selfiePath!);
-  }
+// export async function dropOrphanedSelfies() {
+//   const entries = getAllEntriesByUserId();
+//   const selfiePaths: string[] = [];
+//   for (const entry in entries) {
+//     if (!entries[entry].selfiePath) continue;
+//     selfiePaths.push(entries[entry].selfiePath!);
+//   }
 
-  const dateTimes: string[][] = [];
-  for (const path in selfiePaths) {
-    const date = selfiePaths[path].split("_")[1];
-    const time = selfiePaths[path].split("_")[2];
-    const dateTime = [];
-    dateTime.push(date, time);
-    dateTimes.push(dateTime);
-  }
+//   const dateTimes: string[][] = [];
+//   for (const path in selfiePaths) {
+//     const date = selfiePaths[path].split("_")[1];
+//     const time = selfiePaths[path].split("_")[2];
+//     const dateTime = [];
+//     dateTime.push(date, time);
+//     dateTimes.push(dateTime);
+//   }
 
-  const dateTimeStrings = [];
-  for (const dateTime in dateTimes) {
-    dateTimeStrings.push(new RegExp(dateTimes[dateTime].join("_")));
-  }
+//   const dateTimeStrings = [];
+//   for (const dateTime in dateTimes) {
+//     dateTimeStrings.push(new RegExp(dateTimes[dateTime].join("_")));
+//   }
 
-  for await (const dirEntry of Deno.readDir("assets/selfies")) {
-    for (const regex in dateTimeStrings) {
-      if (!dateTimeStrings[regex].test(dirEntry.name)) {
-        Deno.remove(`assets/selfies/${dirEntry.name}`);
-      }
-    }
-  }
-}
+//   for await (const dirEntry of Deno.readDir("assets/selfies")) {
+//     for (const regex in dateTimeStrings) {
+//       if (!dateTimeStrings[regex].test(dirEntry.name)) {
+//         Deno.remove(`assets/selfies/${dirEntry.name}`);
+//       }
+//     }
+//   }
+// }
 
 export function entryToString(entry: Entry): string {
   return `

@@ -60,6 +60,7 @@ export function createPhqScoreTable(dbFile: PathLike) {
                 timestamp INTEGER NOT NULL,
                 score INTEGER NOT NULL,
                 severity TEXT NOT NULL,
+                action TEXT NOT NULL,
                 impact TEXT NOT NULL,
                 FOREIGN KEY (userId) REFERENCES user_db(telegramId)
                 ON DELETE CASCADE

@@ -1,6 +1,5 @@
 import { DatabaseSync } from "node:sqlite";
 import { User } from "../types/types.ts";
-// import { dbFilePath } from "../constants/paths.ts";
 import { PathLike } from "node:fs";
 
 export function insertUser(user: User, dbPath: PathLike) {

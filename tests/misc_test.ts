@@ -22,6 +22,7 @@ Test Entry
 Page 1 of 15`;
   const testEntry: Entry = {
     userId: 0,
+    timestamp: 0,
     emotion: {
       emotionName: "Test",
       emotionEmoji: "😌",

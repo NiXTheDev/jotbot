@@ -49,7 +49,10 @@ export async function kitties(conversation: Conversation, ctx: Context) {
           InputMediaBuilder.photo(kitty.url),
           { reply_markup: mainKittyKeyboard },
         );
-        await kittyMainSelectionCtx.api.deleteMessage(ctx.chatId!, kittyMainSelectionCtx.msgId! + 1);
+        await kittyMainSelectionCtx.api.deleteMessage(
+          ctx.chatId!,
+          kittyMainSelectionCtx.msgId! + 1,
+        );
         await kittySaysCtx.deleteMessage();
         break;
       }

@@ -155,7 +155,10 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
       }
       case "view-entry-backbutton": {
         // Close view entries menu
-        await ctx.api.deleteMessages(ctx.chatId!, [displayEntryMsg.message_id, displaySelfieMsg.message_id]);
+        await ctx.api.deleteMessages(ctx.chatId!, [
+          displayEntryMsg.message_id,
+          displaySelfieMsg.message_id,
+        ]);
         break loop;
       }
       case "edit-entry": {

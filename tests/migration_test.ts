@@ -1,5 +1,11 @@
 import { DatabaseSync } from "node:sqlite";
-import { createEntryTable, createGadScoreTable, createPhqScoreTable, createSettingsTable, createUserTable } from "../db/migration.ts";
+import {
+  createEntryTable,
+  createGadScoreTable,
+  createPhqScoreTable,
+  createSettingsTable,
+  createUserTable,
+} from "../db/migration.ts";
 import { assertNotEquals } from "@std/assert/not-equals";
 import { assertEquals } from "@std/assert/equals";
 
@@ -47,26 +53,30 @@ Deno.test("Test createPhqScoreTable()", () => {
 });
 
 Deno.test("Test createUserTable()", () => {
-    // Create test gad score table
-    createUserTable(testDbPath);
+  // Create test gad score table
+  createUserTable(testDbPath);
 
-    // Get the table info from the table
-    const db = new DatabaseSync(testDbPath);
-    const table = db.prepare(`SELECT name FROM sqlite_master WHERE type ='table' AND name = 'user_db';`).get();
+  // Get the table info from the table
+  const db = new DatabaseSync(testDbPath);
+  const table = db.prepare(
+    `SELECT name FROM sqlite_master WHERE type ='table' AND name = 'user_db';`,
+  ).get();
 
-    assertNotEquals(table, undefined);
-    assertEquals(table?.name, "user_db");
+  assertNotEquals(table, undefined);
+  assertEquals(table?.name, "user_db");
 });
 
 Deno.test("Test createSettingsTable()", () => {
-    // Create test gad score table
-    createSettingsTable(testDbPath);
+  // Create test gad score table
+  createSettingsTable(testDbPath);
 
-    // Get the table info from the table
-    const db = new DatabaseSync(testDbPath);
-    const table = db.prepare(`SELECT name FROM sqlite_master WHERE type ='table' AND name = 'settings_db';`).get();
+  // Get the table info from the table
+  const db = new DatabaseSync(testDbPath);
+  const table = db.prepare(
+    `SELECT name FROM sqlite_master WHERE type ='table' AND name = 'settings_db';`,
+  ).get();
 
-    assertNotEquals(table, undefined);
-    assertEquals(table?.name, "settings_db");
-    Deno.remove(testDbPath);
+  assertNotEquals(table, undefined);
+  assertEquals(table?.name, "settings_db");
+  Deno.remove(testDbPath);
 });

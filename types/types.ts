@@ -10,7 +10,7 @@ export enum AnxietySeverity {
   MINIMAL_ANXIETY = "Minimal anxiety",
   MILD_ANXIETY = "Mild anxiety",
   MODERATE_ANXIETY = "Moderate anxiety",
-  MODERATE_TO_SEVERE_ANXIETY = "Moderate to severe anxiety"
+  MODERATE_TO_SEVERE_ANXIETY = "Moderate to severe anxiety",
 }
 
 export type Entry = {
@@ -62,4 +62,4 @@ export type GAD7Score = {
   severity: AnxietySeverity;
   action?: string;
   impactQuestionAnswer: string;
-}
+};

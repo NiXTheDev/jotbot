@@ -20,7 +20,7 @@ Deno.test("Test getRandomKittyGif()", async () => {
 });
 
 Deno.test("Test getKittySays()", async () => {
-    const kittyEngine = new KittyEngine();
-    const kittyJson = await kittyEngine.getKittySays("This is a Test!");
-    assertExists(kittyJson.id);
+  const kittyEngine = new KittyEngine();
+  const kittyJson = await kittyEngine.getKittySays("This is a Test!");
+  assertExists(kittyJson.id);
 });

@@ -180,16 +180,16 @@ if (import.meta.main) {
     "Use PHQ-9 to attempt to rate user's depression.",
     async (ctx) => {
       await ctx.conversation.enter("phq9_assessment");
-    }
-  )
+    },
+  );
 
   jotBotCommands.command(
     "am_i_anxious",
     "Use the GAD-7 to attempt to rate user's anxiety level",
     async (ctx) => {
       await ctx.conversation.enter("gad7_assessment");
-    }
-  )
+    },
+  );
 
   jotBot.on("inline_query", async (ctx) => {
     const entries = getAllEntriesByUserId(ctx.inlineQuery.from.id, dbFile);

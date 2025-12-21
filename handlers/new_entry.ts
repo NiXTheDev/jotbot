@@ -7,7 +7,10 @@ import { dbFile } from "../constants/paths.ts";
 
 export async function new_entry(conversation: Conversation, ctx: Context) {
   // Describe situation
-  await ctx.api.sendMessage(ctx.chatId!, "Describe the situation that brought up your thought.");
+  await ctx.api.sendMessage(
+    ctx.chatId!,
+    "Describe the situation that brought up your thought.",
+  );
   const situationCtx = await conversation.waitFor("message:text");
 
   // Record automatic thoughts
@@ -61,7 +64,11 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
   let selfiePath: string | null = "";
   if (selfieCtx.callbackQuery.data === "selfie-yes") {
     try {
-      await ctx.api.editMessageText(ctx.chatId!, askSelfieMsg.message_id, "Send me a selfie.");
+      await ctx.api.editMessageText(
+        ctx.chatId!,
+        askSelfieMsg.message_id,
+        "Send me a selfie.",
+      );
       const selfiePathCtx = await conversation.waitFor("message:photo");
 
       const tmpFile = await selfiePathCtx.getFile();

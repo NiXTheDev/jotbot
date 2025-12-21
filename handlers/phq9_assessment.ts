@@ -1,10 +1,13 @@
 import { Context, InlineKeyboard } from "grammy";
 import { Conversation } from "@grammyjs/conversations";
-import { questionaireKeyboard, keyboardFinal } from "../utils/keyboards.ts";
+import { keyboardFinal, questionaireKeyboard } from "../utils/keyboards.ts";
 import { phq9Questions } from "../constants/strings.ts";
 import { PHQ9Score } from "../types/types.ts";
 import { calcPhq9Score } from "../utils/misc.ts";
-import { finalCallBackQueries, questionCallBackQueries } from "../constants/strings.ts";
+import {
+  finalCallBackQueries,
+  questionCallBackQueries,
+} from "../constants/strings.ts";
 
 export async function phq9_assessment(
   conversation: Conversation,

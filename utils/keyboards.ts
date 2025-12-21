@@ -22,7 +22,9 @@ export const mainCustomKeyboard: Keyboard = new Keyboard()
   .text("/delete_account")
   .text("/🆘").row()
   .text("/kitties")
-  .text("/help")
+  .text("/help").row()
+  .text("/am_i_depressed").row()
+  .text("/am_i_anxious")
   .oneTime(true)
   .resized();
 

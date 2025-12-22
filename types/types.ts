@@ -70,3 +70,14 @@ export type Settings = {
   storeMentalHealthInfo: boolean;
   selfieDirectory: string;
 };
+
+export type JournalEntry = {
+  id?: number;
+  userId: number;
+  timestamp: number;
+  lastEditedTimestamp: number,
+  content: string,
+  length: number,
+  images?: string[],
+  voiceRecordings?: string[],
+}

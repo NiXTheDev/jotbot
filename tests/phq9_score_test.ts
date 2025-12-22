@@ -25,8 +25,8 @@ const testPhqScore: PHQ9Score = {
 };
 
 Deno.test("Test insertPhqScore()", async () => {
-  createUserTable(testDbFile);
-  createPhqScoreTable(testDbFile);
+  await createUserTable(testDbFile);
+  await createPhqScoreTable(testDbFile);
   insertUser(testUser, testDbFile);
 
   const queryResult = insertPhqScore(testPhqScore, testDbFile);
@@ -38,8 +38,8 @@ Deno.test("Test insertPhqScore()", async () => {
 });
 
 Deno.test("Test getPhqScoreById()", async () => {
-  createUserTable(testDbFile);
-  createPhqScoreTable(testDbFile);
+  await createUserTable(testDbFile);
+  await createPhqScoreTable(testDbFile);
   insertUser(testUser, testDbFile);
   insertPhqScore(testPhqScore, testDbFile);
 

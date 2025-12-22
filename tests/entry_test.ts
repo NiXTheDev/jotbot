@@ -38,8 +38,8 @@ const testUser: User = {
 
 Deno.test("Test insertEntry()", async () => {
   // Create test Database
-  createUserTable(testDbFile);
-  createEntryTable(testDbFile);
+  await createUserTable(testDbFile);
+  await createEntryTable(testDbFile);
 
   try {
     // Insert test user
@@ -60,8 +60,8 @@ Deno.test("Test insertEntry()", async () => {
 
 Deno.test("Test updateEntry()", async () => {
   // Create test Database
-  createUserTable(testDbFile);
-  createEntryTable(testDbFile);
+  await createUserTable(testDbFile);
+  await createEntryTable(testDbFile);
 
   insertUser(testUser, testDbFile);
   //Insert test entry
@@ -83,8 +83,8 @@ Deno.test("Test updateEntry()", async () => {
 
 Deno.test("Test deleteEntryById()", async () => {
   // Create test Database
-  createUserTable(testDbFile);
-  createEntryTable(testDbFile);
+  await createUserTable(testDbFile);
+  await createEntryTable(testDbFile);
 
   insertUser(testUser, testDbFile);
   //Insert test entry
@@ -101,8 +101,8 @@ Deno.test("Test deleteEntryById()", async () => {
 
 Deno.test("Test getEntryById()", async () => {
   // Create test Database
-  createUserTable(testDbFile);
-  createEntryTable(testDbFile);
+  await createUserTable(testDbFile);
+  await createEntryTable(testDbFile);
 
   insertUser(testUser, testDbFile);
   //Insert test entry
@@ -119,8 +119,8 @@ Deno.test("Test getEntryById()", async () => {
 
 Deno.test("Test getAllEntriesByUserId()", async () => {
   // Create test Database
-  createUserTable(testDbFile);
-  createEntryTable(testDbFile);
+  await createUserTable(testDbFile);
+  await createEntryTable(testDbFile);
   insertUser(testUser, testDbFile);
 
   // Insert 5 entries

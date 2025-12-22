@@ -16,12 +16,12 @@ import { assertObjectMatch } from "@std/assert/object-match";
 const testJournalEntry: JournalEntry = {
   id: 1,
   userId: 12345,
+  imagesId: null,
+  voiceRecordingsId: null,
   timestamp: 1234567890,
   lastEditedTimestamp: null,
   content: "Test journal entry.",
   length: 19,
-  images: null,
-  voiceRecordings: null,
 };
 
 // Create test user
@@ -33,8 +33,8 @@ const testUser: User = {
 };
 
 Deno.test("Test insertJournalEntry()", async () => {
-  createUserTable(testDbFile);
-  createJournalTable(testDbFile);
+  await createUserTable(testDbFile);
+  await createJournalTable(testDbFile);
   insertUser(testUser, testDbFile);
 
   const queryResult = insertJournalEntry(testJournalEntry, testDbFile);
@@ -46,8 +46,8 @@ Deno.test("Test insertJournalEntry()", async () => {
 });
 
 Deno.test("Test getJournalEntryById()", async () => {
-  createUserTable(testDbFile);
-  createJournalTable(testDbFile);
+  await createUserTable(testDbFile);
+  await createJournalTable(testDbFile);
   insertUser(testUser, testDbFile);
   insertJournalEntry(testJournalEntry, testDbFile);
 
@@ -57,8 +57,8 @@ Deno.test("Test getJournalEntryById()", async () => {
 });
 
 Deno.test("Test updateJournalEntry()", async () => {
-  createUserTable(testDbFile);
-  createJournalTable(testDbFile);
+  await createUserTable(testDbFile);
+  await createJournalTable(testDbFile);
   insertUser(testUser, testDbFile);
   insertJournalEntry(testJournalEntry, testDbFile);
 
@@ -72,8 +72,8 @@ Deno.test("Test updateJournalEntry()", async () => {
 });
 
 Deno.test("Test deleteJournalEntryById()", async () => {
-  createUserTable(testDbFile);
-  createJournalTable(testDbFile);
+  await createUserTable(testDbFile);
+  await createJournalTable(testDbFile);
   insertUser(testUser, testDbFile);
   insertJournalEntry(testJournalEntry, testDbFile);
 
@@ -85,8 +85,8 @@ Deno.test("Test deleteJournalEntryById()", async () => {
 });
 
 Deno.test("Test getAllJournalEntriesByUserId()", async () => {
-  createUserTable(testDbFile);
-  createJournalTable(testDbFile);
+  await createUserTable(testDbFile);
+  await createJournalTable(testDbFile);
   insertUser(testUser, testDbFile);
 
   // Insert 5 Journal Entries

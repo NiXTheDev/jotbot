@@ -2,10 +2,12 @@ import { DatabaseSync } from "node:sqlite";
 import {
   createEntryTable,
   createGadScoreTable,
+  createJournalEntryPhotosTable,
   createJournalTable,
   createPhqScoreTable,
   createSettingsTable,
   createUserTable,
+  createVoiceRecordingTable,
 } from "../db/migration.ts";
 import { assertNotEquals } from "@std/assert/not-equals";
 import { assertEquals } from "@std/assert/equals";
@@ -13,7 +15,7 @@ import { assertEquals } from "@std/assert/equals";
 const testDbPath = "db/test_db/jotbot_test.db";
 Deno.test("Test createEntryTable()", async () => {
   // Create test entry db
-  createEntryTable(testDbPath);
+  await createEntryTable(testDbPath);
 
   // Get table
   const db = new DatabaseSync(testDbPath);
@@ -28,7 +30,7 @@ Deno.test("Test createEntryTable()", async () => {
 
 Deno.test("Test createGadScoreTable()", async () => {
   // Create test gad score table
-  createGadScoreTable(testDbPath);
+  await createGadScoreTable(testDbPath);
 
   // Get the table info from the table
   const db = new DatabaseSync(testDbPath);
@@ -43,7 +45,7 @@ Deno.test("Test createGadScoreTable()", async () => {
 
 Deno.test("Test createPhqScoreTable()", async () => {
   // Create test gad score table
-  createPhqScoreTable(testDbPath);
+  await createPhqScoreTable(testDbPath);
 
   // Get the table info from the table
   const db = new DatabaseSync(testDbPath);
@@ -58,7 +60,7 @@ Deno.test("Test createPhqScoreTable()", async () => {
 
 Deno.test("Test createUserTable()", async () => {
   // Create test gad score table
-  createUserTable(testDbPath);
+  await createUserTable(testDbPath);
 
   // Get the table info from the table
   const db = new DatabaseSync(testDbPath);
@@ -73,7 +75,7 @@ Deno.test("Test createUserTable()", async () => {
 
 Deno.test("Test createSettingsTable()", async () => {
   // Create test gad score table
-  createSettingsTable(testDbPath);
+  await createSettingsTable(testDbPath);
 
   // Get the table info from the table
   const db = new DatabaseSync(testDbPath);
@@ -88,7 +90,7 @@ Deno.test("Test createSettingsTable()", async () => {
 
 Deno.test("Test createJournalTable()", async () => {
   // Create test gad score table
-  createJournalTable(testDbPath);
+  await createJournalTable(testDbPath);
 
   // Get the table info from the table
   const db = new DatabaseSync(testDbPath);
@@ -98,5 +100,34 @@ Deno.test("Test createJournalTable()", async () => {
 
   assertNotEquals(table, undefined);
   assertEquals(table?.name, "journal_db");
+  await Deno.remove(testDbPath);
+});
+
+Deno.test("Test createJournalEntryPhotosTable()", async () => {
+  // Create test gad score table
+  await createJournalEntryPhotosTable(testDbPath);
+
+  // Get the table info from the table
+  const db = new DatabaseSync(testDbPath);
+  const table = db.prepare(
+    `SELECT name FROM sqlite_master WHERE type ='table' AND name = 'photo_db';`,
+  ).get();
+
+  assertNotEquals(table, undefined);
+  assertEquals(table?.name, "photo_db");
+  await Deno.remove(testDbPath);
+});
+
+Deno.test("Test createVoiceRecordingTable()", async () => {
+  await createVoiceRecordingTable(testDbPath);
+
+  // Get the table info from the table
+  const db = new DatabaseSync(testDbPath);
+  const table = db.prepare(
+    `SELECT name FROM sqlite_master WHERE type ='table' AND name = 'voice_recording_db';`,
+  ).get();
+
+  assertNotEquals(table, undefined);
+  assertEquals(table?.name, "voice_recording_db");
   await Deno.remove(testDbPath);
 });

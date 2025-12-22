@@ -24,8 +24,8 @@ const testGadScore: GAD7Score = {
 
 Deno.test("Test insertGadScore()", async () => {
   // Create test Database
-  createGadScoreTable(testDbFile);
-  createUserTable(testDbFile);
+  await createGadScoreTable(testDbFile);
+  await createUserTable(testDbFile);
   insertUser(testUser, testDbFile);
 
   const result = insertGadScore(testGadScore, testDbFile);

@@ -22,12 +22,11 @@ const testUser: User = {
 const testSettings: Settings = {
   userId: 12345,
   storeMentalHealthInfo: false,
-  selfieDirectory: "assets/selfies/",
 };
 
 Deno.test("Test insertSettings()", async () => {
-  createUserTable(testDbFile);
-  createSettingsTable(testDbFile);
+  await createUserTable(testDbFile);
+  await createSettingsTable(testDbFile);
   insertUser(testUser, testDbFile);
 
   const queryResult = insertSettings(testUser.telegramId, testDbFile);
@@ -39,8 +38,8 @@ Deno.test("Test insertSettings()", async () => {
 });
 
 Deno.test("Test getSettingsById()", async () => {
-  createUserTable(testDbFile);
-  createSettingsTable(testDbFile);
+  await createUserTable(testDbFile);
+  await createSettingsTable(testDbFile);
   insertUser(testUser, testDbFile);
   insertSettings(testUser.telegramId, testDbFile);
 
@@ -51,8 +50,8 @@ Deno.test("Test getSettingsById()", async () => {
   await Deno.remove(testDbFile);
 });
 Deno.test("Test updateSettings()", async () => {
-  createUserTable(testDbFile);
-  createSettingsTable(testDbFile);
+  await createUserTable(testDbFile);
+  await createSettingsTable(testDbFile);
   insertUser(testUser, testDbFile);
   insertSettings(testUser.telegramId, testDbFile);
 

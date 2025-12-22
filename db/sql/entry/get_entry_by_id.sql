@@ -1,0 +1,1 @@
+SELECT * FROM entry_db WHERE id = <ID>;

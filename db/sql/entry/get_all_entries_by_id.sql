@@ -1,0 +1,1 @@
+SELECT * FROM entry_db WHERE userId = <ID> ORDER BY timestamp DESC;

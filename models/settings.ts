@@ -3,10 +3,9 @@ import { Settings } from "../types/types.ts";
 import { DatabaseSync } from "node:sqlite";
 
 /**
- * 
- * @param userId 
- * @param dbFile 
- * @returns 
+ * @param userId
+ * @param dbFile
+ * @returns
  */
 export function insertSettings(userId: number, dbFile: PathLike) {
   try {
@@ -53,10 +52,9 @@ export function updateSettings(
 }
 
 /**
- * 
- * @param userId 
- * @param dbFile 
- * @returns 
+ * @param userId
+ * @param dbFile
+ * @returns
  */
 export function getSettingsById(userId: number, dbFile: PathLike) {
   try {

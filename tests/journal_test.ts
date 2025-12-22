@@ -1,0 +1,101 @@
+import { assertEquals } from "@std/assert/equals";
+import { testDbFile } from "../constants/paths.ts";
+import { createJournalTable, createUserTable } from "../db/migration.ts";
+import {
+  deleteJournalEntryById,
+  getAllJournalEntriesByUserId,
+  getJournalEntryById,
+  insertJournalEntry,
+  updateJournalEntry,
+} from "../models/journal.ts";
+import { insertUser } from "../models/user.ts";
+import { JournalEntry, User } from "../types/types.ts";
+import { assertObjectMatch } from "@std/assert/object-match";
+
+// Create test journal entry
+const testJournalEntry: JournalEntry = {
+  id: 1,
+  userId: 12345,
+  timestamp: 1234567890,
+  lastEditedTimestamp: null,
+  content: "Test journal entry.",
+  length: 19,
+  images: null,
+  voiceRecordings: null,
+};
+
+// Create test user
+const testUser: User = {
+  telegramId: 12345,
+  username: "username",
+  dob: new Date(Date.now()),
+  joinedDate: new Date(Date.now()),
+};
+
+Deno.test("Test insertJournalEntry()", async () => {
+  createUserTable(testDbFile);
+  createJournalTable(testDbFile);
+  insertUser(testUser, testDbFile);
+
+  const queryResult = insertJournalEntry(testJournalEntry, testDbFile);
+
+  assertEquals(queryResult?.changes, 1);
+  assertEquals(queryResult?.lastInsertRowid, 1);
+
+  await Deno.remove(testDbFile);
+});
+
+Deno.test("Test getJournalEntryById()", async () => {
+  createUserTable(testDbFile);
+  createJournalTable(testDbFile);
+  insertUser(testUser, testDbFile);
+  insertJournalEntry(testJournalEntry, testDbFile);
+
+  const entry = getJournalEntryById(1, testDbFile);
+  assertObjectMatch(entry!, testJournalEntry);
+  await Deno.remove(testDbFile);
+});
+
+Deno.test("Test updateJournalEntry()", async () => {
+  createUserTable(testDbFile);
+  createJournalTable(testDbFile);
+  insertUser(testUser, testDbFile);
+  insertJournalEntry(testJournalEntry, testDbFile);
+
+  const updatedJournalEntry = testJournalEntry;
+  updatedJournalEntry.content = "I changed the content!";
+
+  const queryResult = updateJournalEntry(updatedJournalEntry, testDbFile);
+
+  console.log(queryResult);
+  await Deno.remove(testDbFile);
+});
+
+Deno.test("Test deleteJournalEntryById()", async () => {
+  createUserTable(testDbFile);
+  createJournalTable(testDbFile);
+  insertUser(testUser, testDbFile);
+  insertJournalEntry(testJournalEntry, testDbFile);
+
+  const queryResult = deleteJournalEntryById(1, testDbFile);
+
+  assertEquals(queryResult?.changes, 1);
+  assertEquals(queryResult?.lastInsertRowid, 0);
+  await Deno.remove(testDbFile);
+});
+
+Deno.test("Test getAllJournalEntriesByUserId()", async () => {
+  createUserTable(testDbFile);
+  createJournalTable(testDbFile);
+  insertUser(testUser, testDbFile);
+
+  // Insert 5 Journal Entries
+  for (let i = 0; i < 5; i++) {
+    insertJournalEntry(testJournalEntry, testDbFile);
+  }
+
+  const entries = getAllJournalEntriesByUserId(12345, testDbFile);
+
+  assertEquals(entries.length, 5);
+  await Deno.remove(testDbFile);
+});

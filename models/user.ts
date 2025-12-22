@@ -3,10 +3,9 @@ import { User } from "../types/types.ts";
 import { PathLike } from "node:fs";
 
 /**
- * 
- * @param user 
- * @param dbPath 
- * @returns 
+ * @param user
+ * @param dbPath
+ * @returns
  */
 export function insertUser(user: User, dbPath: PathLike) {
   try {
@@ -35,9 +34,8 @@ export function insertUser(user: User, dbPath: PathLike) {
 }
 
 /**
- * 
- * @param userTelegramId 
- * @param dbFile 
+ * @param userTelegramId
+ * @param dbFile
  */
 export function deleteUser(userTelegramId: number, dbFile: PathLike) {
   try {
@@ -59,10 +57,9 @@ export function deleteUser(userTelegramId: number, dbFile: PathLike) {
 }
 
 /**
- * 
- * @param userTelegramId 
- * @param dbFile 
- * @returns 
+ * @param userTelegramId
+ * @param dbFile
+ * @returns
  */
 export function userExists(userTelegramId: number, dbFile: PathLike): boolean {
   let ue: number = 0;

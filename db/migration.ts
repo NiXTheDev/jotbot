@@ -120,11 +120,11 @@ export function createJournalTable(dbFile: PathLike) {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         userId INTEGER NOT NULL,
         timestamp INTEGER NOT NULL,
-        lastEditedTimestamp INTEGER NOT NULL,
+        lastEditedTimestamp INTEGER,
         content TEXT NOT NULL,
         length INTEGER NOT NULL,
-        images TEXT NOT NULL, // Comma seperated paths
-        voiceRecordings TEXT NOT NULL, // Comma seperated paths
+        images TEXT,
+        voiceRecordings TEXT,
         FOREIGN KEY (userId) REFERENCES user_db(telegramId)
         ON DELETE CASCADE
       );

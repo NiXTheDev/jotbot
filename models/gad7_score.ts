@@ -4,8 +4,8 @@ import { PathLike } from "node:fs";
 
 /**
  * Insert GAD-7 score into gad_score_db table
- * @param score 
- * @param dbPath 
+ * @param score
+ * @param dbPath
  * @returns StatementResultingChanges
  */
 export function insertGadScore(score: GAD7Score, dbPath: PathLike) {

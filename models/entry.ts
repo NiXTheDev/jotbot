@@ -1,6 +1,9 @@
 import { DatabaseSync, SQLOutputValue } from "node:sqlite";
 import { Entry } from "../types/types.ts";
 import { PathLike } from "node:fs";
+import { sqlFilePath } from "../constants/paths.ts";
+
+const sqlFilePathEntry = `${sqlFilePath}/entry`;
 
 /**
  * Insert entry into entry_db
@@ -10,13 +13,13 @@ import { PathLike } from "node:fs";
  */
 export function insertEntry(entry: Entry, dbFile: PathLike) {
   const db = new DatabaseSync(dbFile);
+  const query = Deno.readTextFileSync(`${sqlFilePathEntry}/insert_entry.sql`)
+    .trim(); // Grab query from file
   if (
     !(db.prepare("PRAGMA integrity_check;").get()?.integrity_check === "ok")
   ) throw new Error("JotBot Error: Databaes integrety check failed!");
   db.exec("PRAGMA foreign_keys = ON;");
-  const queryResult = db.prepare(
-    `INSERT INTO entry_db (userId, timestamp, lastEditedTimestamp, situation, automaticThoughts, emotionName, emotionEmoji, emotionDescription, selfiePath) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-  ).run(
+  const queryResult = db.prepare(query).run(
     entry.userId,
     entry.timestamp!,
     entry.lastEditedTimestamp || null,
@@ -51,14 +54,14 @@ export function updateEntry(
 ) {
   try {
     const db = new DatabaseSync(dbFile);
+    const query = Deno.readTextFileSync(`${sqlFilePathEntry}/update_entry.sql`)
+      .replace("<ID>", updatedEntry.id!.toString()).trim();
     if (
       !(db.prepare("PRAGMA integrity_check(entry_db);").get()
         ?.integrity_check === "ok")
     ) throw new Error("JotBot Error: Databaes integrety check failed!");
     db.exec("PRAGMA foreign_keys = ON;");
-    const queryResult = db.prepare(
-      `UPDATE OR FAIL entry_db SET lastEditedTimestamp = ?, situation = ?, automaticThoughts = ?, emotionName = ?, emotionEmoji = ?, emotionDescription = ? WHERE id = ${updatedEntry.id};`,
-    ).run(
+    const queryResult = db.prepare(query).run(
       updatedEntry.lastEditedTimestamp!,
       updatedEntry.situation!,
       updatedEntry.automaticThoughts!,
@@ -90,14 +93,14 @@ export function updateEntry(
 export function deleteEntryById(entryId: number, dbFile: PathLike) {
   try {
     const db = new DatabaseSync(dbFile);
+    const query = Deno.readTextFileSync(`${sqlFilePathEntry}/delete_entry.sql`)
+      .replace("<ID>", entryId.toString()).trim();
     if (
       !(db.prepare("PRAGMA integrity_check(entry_db);").get()
         ?.integrity_check === "ok")
     ) throw new Error("JotBot Error: Databaes integrety check failed!");
     db.exec("PRAGMA foreign_keys = ON;");
-    const queryResult = db.prepare(
-      `DELETE FROM entry_db WHERE id = '${entryId}';`,
-    ).run();
+    const queryResult = db.prepare(query).run();
 
     if (queryResult.changes === 0) {
       throw new Error(
@@ -113,7 +116,6 @@ export function deleteEntryById(entryId: number, dbFile: PathLike) {
 }
 
 /**
- * 
  * @param entryId Number - ID of user who owns this entry
  * @param dbFile PathLike - Path to the sqlite db file
  * @returns Entry
@@ -122,13 +124,15 @@ export function getEntryById(entryId: number, dbFile: PathLike): Entry {
   let queryResult: Record<string, SQLOutputValue> | undefined;
   try {
     const db = new DatabaseSync(dbFile);
+    const query = Deno.readTextFileSync(
+      `${sqlFilePathEntry}/get_entry_by_id.sql`,
+    ).replace("<ID>", entryId.toString()).trim();
     if (
       !(db.prepare("PRAGMA integrity_check(entry_db);").get()
         ?.integrity_check === "ok")
     ) throw new Error("JotBot Error: Databaes integrety check failed!");
     db.exec("PRAGMA foreign_keys = ON;");
-    queryResult = db.prepare(`SELECT * FROM entry_db WHERE id = ${entryId}`)
-      .get();
+    queryResult = db.prepare(query).get();
     db.close();
   } catch (err) {
     console.error(`Failed to retrieve entry: ${entryId}: ${err}`);
@@ -163,12 +167,13 @@ export function getAllEntriesByUserId(
   const entries = [];
   try {
     const db = new DatabaseSync(dbFile);
+    const query = Deno.readTextFileSync(
+      `${sqlFilePathEntry}/get_all_entries_by_id.sql`,
+    ).replace("<ID>", userId.toString()).trim();
     if (
       !(db.prepare("PRAGMA integrity_check;").get()?.integrity_check === "ok")
     ) throw new Error("JotBot Error: Databaes integrety check failed!");
-    const queryResults = db.prepare(
-      `SELECT * FROM entry_db WHERE userId = '${userId}' ORDER BY timestamp DESC;`,
-    ).all();
+    const queryResults = db.prepare(query).all();
     for (const e in queryResults) {
       const entry: Entry = {
         id: Number(queryResults[e].id!),

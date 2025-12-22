@@ -20,15 +20,15 @@ export function insertJournalEntry(
     db.exec("PRAGMA foreign_keys = ON;");
 
     const queryResult = db.prepare(
-      `INSERT INTO journal_db (userId, timestamp, lastEditedTimestamp, content, length, images, voiceRecordings) VALUES (?, ?, ?, ?, ?, ?, ?);`,
+      `INSERT INTO journal_db (userId, timestamp, lastEditedTimestamp, content, length, imagesId, voiceRecordingsId) VALUES (?, ?, ?, ?, ?, ?, ?);`,
     ).run(
       journalEntry.userId,
       journalEntry.timestamp,
       journalEntry.lastEditedTimestamp || null,
       journalEntry.content,
       journalEntry.length,
-      journalEntry.images?.join(",") || null,
-      journalEntry.voiceRecordings?.join(",") || null,
+      journalEntry.imagesId || null,
+      journalEntry.voiceRecordingsId || null,
     );
 
     db.close();
@@ -63,8 +63,8 @@ export function updateJournalEntry(
       journalEntry.lastEditedTimestamp!,
       journalEntry.content,
       journalEntry.length,
-      journalEntry.images?.join(",") || null,
-      journalEntry.voiceRecordings?.join(",") || null,
+      journalEntry.imagesId || null,
+      journalEntry.voiceRecordingsId || null,
     );
     db.close();
     return queryResult;
@@ -124,13 +124,12 @@ export function getJournalEntryById(
     return {
       id: Number(journalEntry?.id!),
       userId: Number(journalEntry?.userId!),
+      imagesId: Number(journalEntry?.imagesId!) || null,
+      voiceRecordingsId: Number(journalEntry?.voiceRecordingsId) || null,
       timestamp: Number(journalEntry?.timestamp!),
       lastEditedTimestamp: Number(journalEntry?.lastEditedTimestamp) || null,
       content: String(journalEntry?.content!),
       length: Number(journalEntry?.length!),
-      images: journalEntry?.images?.toString().split(",") || null,
-      voiceRecordings: journalEntry?.voiceRecordings?.toString().split(",") ||
-        null,
     };
   } catch (err) {
     console.error(`Failed to retrieve journal entry ${id}: ${err}`);
@@ -164,9 +163,9 @@ export function getAllJournalEntriesByUserId(userId: number, dbFile: PathLike) {
           Number(journalEntriesResults[je]?.lastEditedTimestamp) || null,
         content: String(journalEntriesResults[je]?.content!),
         length: Number(journalEntriesResults[je]?.length!),
-        images: String(journalEntriesResults[je]?.images).split(",") || null,
-        voiceRecordings:
-          String(journalEntriesResults[je]?.voiceRecordings).split(",") ||
+        imagesId: Number(journalEntriesResults[je]?.imagesId) || null,
+        voiceRecordingsId:
+          Number(journalEntriesResults[je]?.voiceRecordingsId!) ||
           null,
       };
       journalEntries.push(journalEntry);

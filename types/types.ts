@@ -75,9 +75,9 @@ export type JournalEntry = {
   id?: number;
   userId: number;
   timestamp: number;
-  lastEditedTimestamp: number,
-  content: string,
-  length: number,
-  images?: string[],
-  voiceRecordings?: string[],
-}
+  lastEditedTimestamp?: number | null;
+  content: string;
+  length: number;
+  images?: string[] | null;
+  voiceRecordings?: string[] | null;
+};

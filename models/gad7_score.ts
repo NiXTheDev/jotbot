@@ -56,10 +56,9 @@ export function insertGadScore(score: GAD7Score, dbPath: PathLike) {
 // }
 
 /**
- * 
- * @param id 
- * @param dbPath 
- * @returns 
+ * @param id
+ * @param dbPath
+ * @returns
  */
 export function getGadScoreById(id: number, dbPath: PathLike): GAD7Score {
   let gadScore;

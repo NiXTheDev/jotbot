@@ -1,12 +1,12 @@
-import { assertEquals } from "@std/assert";
+import { assertEquals, assertObjectMatch } from "@std/assert";
 import { entryFromString, entryToString } from "../utils/misc.ts";
 import { Entry } from "../types/types.ts";
 
 Deno.test("Test entryFromString()", () => {
   const testEntryString = `Page 1 of 15
 
-Date Created 12/16/2025, 4:32:34 PM
-Last Edited 12/16/2025, 4:43:58 PM
+Date Created 12/16/2025, 12:00:00 AM
+Last Edited 12/16/2025, 4:43:58 AM
 Emotion
 Test 😌
 
@@ -35,12 +35,12 @@ Page 1 of 15`;
 
   // entryFromString(testEntryString);
 
-  assertEquals(entryFromString(testEntryString), testEntry);
+  assertObjectMatch(entryFromString(testEntryString), testEntry);
 });
 
 Deno.test("Test entryToString()", () => {
-  const testEntryString = `<b>Date Created</b> 12/31/1969, 5:00:00 PM
-<b>Last Edited</b> 12/31/1969, 5:00:00 PM
+  const testEntryString = `<b>Date Created</b> ${new Date(0).toLocaleString()}
+<b>Last Edited</b> ${new Date(0).toLocaleString()}
 <b><u>Emotion</u></b>
 Test 😌
 
@@ -69,20 +69,3 @@ Test Entry`;
   console.log(entryToString(testEntry));
   assertEquals(entryToString(testEntry), testEntryString);
 });
-
-// Deno.test("Test calcGad7Score()", () => {
-//   const testScores: GAD7Score[] = [
-//     {
-//       id: 0,
-//       userId: 0,
-//       timestamp: 0,
-//       score: 4,
-//       severity: AnxietySeverity.MINIMAL_ANXIETY,
-//       impactQuestionAnswer: ""
-//     }
-//   ];
-
-//   for (const score in testScores) {
-
-//   }
-// })

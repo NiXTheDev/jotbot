@@ -34,6 +34,7 @@ import { dbFile } from "./constants/paths.ts";
 import { createDatabase, getLatestId } from "./utils/db.ts";
 import { getSettingsById, updateSettings } from "./models/settings.ts";
 import { getPhqScoreById } from "./models/phq9_score.ts";
+import { getGadScoreById } from "./models/gad7_score.ts";
 
 if (import.meta.main) {
   // Check if database is present and if not create one
@@ -223,12 +224,17 @@ if (import.meta.main) {
     "Show a snapshot of your mental health based on your data.",
     async (ctx) => {
       // Build snapshot
-      const lastDepressionScore = Number(
-        getPhqScoreById(getLatestId(dbFile, "phq_score_db"), dbFile),
-      );
-      // const lastAnxietyScore = getGad
+      const lastDepressionScore = getPhqScoreById(
+        getLatestId(dbFile, "phq_score_db"),
+        dbFile,
+      )?.score;
+
+      const lastAnxietyScore =
+        getGadScoreById(getLatestId(dbFile, "gad_score_db"), dbFile).score;
+      // const lastAnxietyScore = getGad;
       await ctx.reply(`You mental health snapshot:
-Last PHQ-9 Score: ${lastDepressionScore || "No Scores Found"}`);
+Last PHQ-9 Score: ${lastDepressionScore || "No Scores Found"}
+Last GAD-7 Score: ${lastAnxietyScore || "No Scores Found"}`);
     },
   );
 

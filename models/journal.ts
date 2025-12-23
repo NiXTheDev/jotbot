@@ -1,6 +1,9 @@
 import { PathLike } from "node:fs";
 import { JournalEntry } from "../types/types.ts";
 import { DatabaseSync } from "node:sqlite";
+import { sqlFilePath } from "../constants/paths.ts";
+
+const sqlPath = `${sqlFilePath}/journal_entry`;
 
 /**
  * Stores a journal entry
@@ -52,14 +55,14 @@ export function updateJournalEntry(
 ) {
   try {
     const db = new DatabaseSync(dbFile);
+    const query = Deno.readTextFileSync(`${sqlPath}/update_journal_entry.sql`)
+      .replace("<ID>", journalEntry.id!.toString()).trim();
     if (
       !(db.prepare("PRAGMA integrity_check;").get()?.integrity_check === "ok")
     ) throw new Error("JotBot Error: Databaes integrety check failed!");
     db.exec("PRAGMA foreign_keys = ON;");
 
-    const queryResult = db.prepare(
-      `UPDATE OR FAIL journal_db SET lastEditedTimestamp = ?, content = ?, length = ?, images = ?, voiceRecordings = ? WHERE id = ${journalEntry.id};`,
-    ).run(
+    const queryResult = db.prepare(query).run(
       journalEntry.lastEditedTimestamp!,
       journalEntry.content,
       journalEntry.length,

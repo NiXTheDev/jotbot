@@ -10,6 +10,7 @@ import { viewEntriesKeyboard } from "../utils/keyboards.ts";
 import { entryFromString } from "../utils/misc.ts";
 import { InputFile } from "grammy/types";
 import { dbFile } from "../constants/paths.ts";
+// import * as path from "@std/path";
 
 export async function view_entries(conversation: Conversation, ctx: Context) {
   let entries: Entry[] = await conversation.external(() =>
@@ -53,8 +54,7 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
 `;
 
   // Reply initially with first entry before starting loop
-  const displaySelfieMsg = await ctx.api.sendPhoto(
-    ctx.chatId!,
+  const displaySelfieMsg = await ctx.replyWithPhoto(
     new InputFile(entries[currentEntry].selfiePath! || "assets/404.png"),
     { caption: selfieCaptionString, parse_mode: "HTML" },
   );

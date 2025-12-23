@@ -80,7 +80,7 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
       );
 
       if (selfieResponse.body) {
-        await conversation.external(async () => { // User conversation.external
+        await conversation.external(async () => { // use conversation.external
           const fileName = `${ctx.from?.id}_${
             new Date(Date.now()).toLocaleString()
           }.jpg`.replaceAll(" ", "_").replace(",", "").replaceAll("/", "-"); // Build and sanitize selfie file name

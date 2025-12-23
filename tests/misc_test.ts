@@ -32,9 +32,6 @@ Page 1 of 15`;
     automaticThoughts: "Test Entry",
     selfiePath: null,
   };
-
-  // entryFromString(testEntryString);
-
   assertObjectMatch(entryFromString(testEntryString), testEntry);
 });
 
@@ -66,6 +63,5 @@ Test Entry`;
     automaticThoughts: "Test Entry",
     selfiePath: null,
   };
-  console.log(entryToString(testEntry));
   assertEquals(entryToString(testEntry), testEntryString);
 });

@@ -1,0 +1,1 @@
+SELECT * FROM journal_db WHERE id = <ID>;

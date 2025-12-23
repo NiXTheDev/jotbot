@@ -45,7 +45,7 @@ export type User = {
 };
 
 export type PHQ9Score = {
-  id: number; // Id of this time the test was taken
+  id?: number; // Id of this time the test was taken
   userId: number; // Telegram user ID this score is attatched to
   timestamp: number; // When the test was taken
   score: number; // The overall depression score

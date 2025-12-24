@@ -227,14 +227,47 @@ if (import.meta.main) {
       const lastDepressionScore = getPhqScoreById(
         getLatestId(dbFile, "phq_score_db"),
         dbFile,
-      )?.score;
+      );
 
-      const lastAnxietyScore =
-        getGadScoreById(getLatestId(dbFile, "gad_score_db"), dbFile).score;
+      const lastAnxietyScore = getGadScoreById(
+        getLatestId(dbFile, "gad_score_db"),
+        dbFile,
+      );
       // const lastAnxietyScore = getGad;
-      await ctx.reply(`You mental health snapshot:
-Last PHQ-9 Score: ${lastDepressionScore || "No Scores Found"}
-Last GAD-7 Score: ${lastAnxietyScore || "No Scores Found"}`);
+      await ctx.reply(
+        `<b><u>Mental Health Overview</u></b>
+This is an overview of your mental health based on your answers to the GAD-7 and PHQ-9 questionaires.  
+This snap shot only shows the last score.
+
+<b>THIS IS NOT A MEDICAL OR PSYCIATRIC DIAGNOSIS!!</b> 
+  
+Only a trained mental health professional can diagnose actual mental illness.  This is meant to be a personal reference so you may seek help if you feel you need it.
+
+<b><u>Depression Overview</u></b>
+<b>Last Taken</b> ${new Date(lastDepressionScore?.timestamp!).toLocaleString() || "No data"}
+<b>Last PHQ-9 Score</b> ${lastDepressionScore?.score || "No Data"}
+<b>Depression Severity</b> ${
+          lastDepressionScore?.severity.toString() || "No data"
+        }
+<b>How it impacts my life</b> ${
+          lastDepressionScore?.impactQuestionAnswer || "No data"
+        }
+<b><u>Description</u></b>
+${lastDepressionScore?.action || "No data"}
+
+<b><u>Anxietey Overview</u></b>
+<b>Last Taken</b> ${
+          new Date(lastAnxietyScore?.timestamp).toLocaleString() || "No Data"
+        }
+<b>Last GAD-7 Score</b> ${lastAnxietyScore?.score || "No Data"}
+<b>Anxiety Severity ${lastAnxietyScore?.severity || "No data"}</b>
+<b>Anxiety impact on my life</b> ${
+          lastAnxietyScore.impactQuestionAnswer || "No data"
+        }
+<b><u>Anxiety Description</u></b>
+${lastAnxietyScore?.action || "No data"}`,
+        { parse_mode: "HTML" },
+      );
     },
   );
 

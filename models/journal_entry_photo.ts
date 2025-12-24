@@ -1,9 +1,10 @@
 import { DatabaseSync } from "node:sqlite";
 import { JournalEntryPhoto } from "../types/types.ts";
+import { PathLike } from "node:fs";
 
 export function insertJournalEntryPhoto(
   jePhoto: JournalEntryPhoto,
-  dbFile: PahtLike,
+  dbFile: PathLike,
 ) {
   try {
     const db = new DatabaseSync(dbFile);

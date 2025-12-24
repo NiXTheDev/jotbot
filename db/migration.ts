@@ -88,8 +88,8 @@ export function createJournalTable(dbFile: PathLike) {
 export function createJournalEntryPhotosTable(dbFile: PathLike) {
   try {
     const db = new DatabaseSync(dbFile);
-    const query =
-      Deno.readTextFileSync(`${sqlFilePath}/create_photo_table.sql`).trim();
+    const query = Deno.readTextFileSync(`${sqlFilePath}/create_photo_table.sql`)
+      .trim();
     db.exec("PRAGMA foreign_keys = ON;");
     db.prepare(query).run();
     db.close();

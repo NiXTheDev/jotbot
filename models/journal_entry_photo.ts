@@ -1,7 +1,10 @@
 import { DatabaseSync } from "node:sqlite";
 import { JournalEntryPhoto } from "../types/types.ts";
 
-export function insertJournalEntryPhoto(jePhoto: JournalEntryPhoto, dbFile: PahtLike) {
+export function insertJournalEntryPhoto(
+  jePhoto: JournalEntryPhoto,
+  dbFile: PahtLike,
+) {
   try {
     const db = new DatabaseSync(dbFile);
     if (
@@ -15,7 +18,7 @@ export function insertJournalEntryPhoto(jePhoto: JournalEntryPhoto, dbFile: Paht
       jePhoto.journalEntryId,
       jePhoto.path,
       jePhoto.caption || null,
-      jePhoto.fileSize
+      jePhoto.fileSize,
     );
 
     db.close();

@@ -72,7 +72,7 @@ export type Settings = {
 
 export type JournalEntryPhoto = {
   id?: number;
-  journalEntryId: number,
+  journalEntryId: number;
   path: string;
   caption?: string | null;
   fileSize: number;

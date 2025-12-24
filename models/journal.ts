@@ -64,7 +64,7 @@ export function updateJournalEntry(
     const queryResult = db.prepare(query).run(
       journalEntry.lastEditedTimestamp!,
       journalEntry.content,
-      journalEntry.length
+      journalEntry.length,
     );
     db.close();
     return queryResult;

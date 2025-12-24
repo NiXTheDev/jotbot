@@ -242,12 +242,17 @@ export function anxietySeverityStringToEnum(
   return severityEnum;
 }
 
-export async function downloadTelegramImage(token: string, caption: string, telegramFile: File, journalEntryId: number): Promise<JournalEntryPhoto> {
+export async function downloadTelegramImage(
+  token: string,
+  caption: string,
+  telegramFile: File,
+  journalEntryId: number,
+): Promise<JournalEntryPhoto> {
   const journalEntryPhoto: JournalEntryPhoto = {
     journalEntryId: journalEntryId,
     path: "",
     caption: "",
-    fileSize: 0
+    fileSize: 0,
   };
   try {
     const selfieResponse = await fetch(

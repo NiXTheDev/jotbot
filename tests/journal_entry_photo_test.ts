@@ -39,7 +39,10 @@ Deno.test("Test insertJournalEntryPhoto()", () => {
   insertUser(testUser, testDbFile);
   insertJournalEntry(testJournalEntry, testDbFile);
 
-  const queryResult = insertJournalEntryPhoto(testJournalEntryPhoto, testDbFile);
+  const queryResult = insertJournalEntryPhoto(
+    testJournalEntryPhoto,
+    testDbFile,
+  );
 
   assertEquals(queryResult?.changes, 1);
   assertEquals(queryResult.lastInsertRowid, 1);

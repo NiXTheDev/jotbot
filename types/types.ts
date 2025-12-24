@@ -71,11 +71,10 @@ export type Settings = {
 };
 
 export type JournalEntryPhoto = {
-  id: number;
-  url: string;
-  caption: string;
-  width: number;
-  height: number;
+  id?: number;
+  journalEntryId: number,
+  path: string;
+  caption?: string | null;
   fileSize: number;
 };
 

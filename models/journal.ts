@@ -23,23 +23,22 @@ export function insertJournalEntry(
     db.exec("PRAGMA foreign_keys = ON;");
 
     const queryResult = db.prepare(
-      `INSERT INTO journal_db (userId, timestamp, lastEditedTimestamp, content, length, imagesId, voiceRecordingsId) VALUES (?, ?, ?, ?, ?, ?, ?);`,
+      `INSERT INTO journal_db (userId, timestamp, lastEditedTimestamp, content, length) VALUES (?, ?, ?, ?, ?);`,
     ).run(
       journalEntry.userId,
       journalEntry.timestamp,
       journalEntry.lastEditedTimestamp || null,
       journalEntry.content,
       journalEntry.length,
-      journalEntry.imagesId || null,
-      journalEntry.voiceRecordingsId || null,
     );
 
     db.close();
     return queryResult;
   } catch (err) {
     console.error(
-      `Failed to insert journal entry ${journalEntry.id} into db: ${err}`,
+      `Failed to insert journal entry into journal_db: ${err}`,
     );
+    throw err;
   }
 }
 
@@ -65,9 +64,7 @@ export function updateJournalEntry(
     const queryResult = db.prepare(query).run(
       journalEntry.lastEditedTimestamp!,
       journalEntry.content,
-      journalEntry.length,
-      journalEntry.imagesId || null,
-      journalEntry.voiceRecordingsId || null,
+      journalEntry.length
     );
     db.close();
     return queryResult;

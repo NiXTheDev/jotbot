@@ -1,1 +1,1 @@
-UPDATE OR FAIL journal_db SET lastEditedTimestamp = ?, content = ?, length = ?, imagesId = ?, voiceRecordingsId = ? WHERE id = <ID>;
+UPDATE OR FAIL journal_db SET lastEditedTimestamp = ?, content = ?, length = ? WHERE id = <ID>;

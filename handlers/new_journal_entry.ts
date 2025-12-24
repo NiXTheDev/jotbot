@@ -1,7 +1,13 @@
 import { Conversation } from "@grammyjs/conversations";
 import { Context, InlineKeyboard } from "grammy";
 import { JournalEntry } from "../types/types.ts";
-import { telegramDownloadUrl } from "../constants/strings.ts";
+import {
+  getAllJournalEntriesByUserId,
+  insertJournalEntry,
+} from "../models/journal.ts";
+import { dbFile } from "../constants/paths.ts";
+import { downloadTelegramImage } from "../utils/misc.ts";
+import { insertJournalEntryPhoto } from "../models/journal_entry_photo.ts";
 
 /**
  * Starts the process of creating a new journal entry.
@@ -12,57 +18,65 @@ export async function new_journal_entry(
   conversation: Conversation,
   ctx: Context,
 ) {
-  ctx.reply(`Hello ${ctx.from?.username!}!  Tell me what is on your mind.`);
-
-  const journalEntryCtx = await conversation.waitFor("message:text");
-
-  const confirmMsg = ctx.reply(
-    `Would you like to upload any pictures with this journal entry ${ctx.from
-      ?.username!}?`,
-    {
-      reply_markup: new InlineKeyboard().text("Yes", "image-upload-yes").text(
-        "No",
-        "image-upload-no",
-      ),
-    },
+  await ctx.reply(
+    `Hello ${ctx.from?.username!}!  Tell me what is on your mind.`,
   );
 
-  const imagesConfirmCtx = await conversation.waitForCallbackQuery([
-    "image-upload-yes",
-    "image-upload-no",
-  ]);
+  const journalEntryCtx = await conversation.waitFor("message:text");
+  // Try to insert journal entry
+  try {
+    const journalEntry: JournalEntry = {
+      userId: ctx.from?.id!,
+      timestamp: await conversation.external(() => Date.now()),
+      content: journalEntryCtx.message.text,
+      length: journalEntryCtx.message.text.length,
+    };
+    await conversation.external(() => insertJournalEntry(journalEntry, dbFile));
+  } catch (err) {
+    console.error(`Failed to insert Journal Entry: ${err}`);
+    await ctx.reply(`Failed to insert Journal Entry: ${err}`);
+    throw new Error(`Failed to insert Journal Entry: ${err}`);
+  }
+  await ctx.reply(`Successfully saved journal entry!`);
 
-  if (imagesConfirmCtx.callbackQuery.data === "image-upload-yes") {
-    ctx.api.editMessageText(
-      ctx.chatId!,
-      (await confirmMsg).message_id,
-      "Okay!  Send me some images.",
+  let imageCount = 0;
+  while (true) {
+    await ctx.reply(
+      `Send me an image or click done.  You have sent ${imageCount} images.`,
+      { reply_markup: new InlineKeyboard().text("Done", "photo-done") },
     );
 
-    const imagesCtx = await conversation.waitFor("message:photo");
+    const imagesCtx = await conversation.waitFor([
+      "message:photo",
+      "callback_query",
+    ]);
 
-    const tmpFile = await imagesCtx.getFile();
+    if (imagesCtx.callbackQuery?.data === "photo-done") {
+      break;
+    }
 
-    const response = await conversation.external(async () => {
-      return await fetch(
-        telegramDownloadUrl.replace("<token>", ctx.api.token).replace(
-          "<file_path>",
-          tmpFile.file_path!,
-        ),
+    try {
+      const file = await imagesCtx.getFile();
+      const journalEntryPhoto = await conversation.external(async () =>
+        await downloadTelegramImage(
+          ctx.api.token,
+          imagesCtx.message?.caption!,
+          file,
+          getAllJournalEntriesByUserId(ctx.from?.id!, dbFile)[0].id!, // Latest ID
+        )
       );
-    });
-    console.log(response);
-    if (!response.ok) {
-      throw new Error("Failed to recieve your images in Journal Entry");
+      console.log(journalEntryPhoto);
+      insertJournalEntryPhoto(journalEntryPhoto, dbFile);
+      await ctx.reply(`Saved photo!`);
+      imageCount++;
+    } catch (err) {
+      console.error(
+        `Failed to save images for Journal Entry ${getAllJournalEntriesByUserId(
+          ctx.from?.id!,
+          dbFile,
+        )[0].id!}: ${err}`,
+      );
     }
   }
-
-  const journalEntry: JournalEntry = {
-    userId: ctx.from?.id!,
-    timestamp: await conversation.external(() => Date.now()),
-    content: journalEntryCtx.message.text,
-    length: journalEntryCtx.message.text.length,
-  };
-
-  console.log(journalEntry);
+  return await ctx.reply("Journaling Done!");
 }

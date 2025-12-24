@@ -72,13 +72,13 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
       const selfiePathCtx = await conversation.waitFor("message:photo");
 
       const tmpFile = await selfiePathCtx.getFile();
+      console.log(selfiePathCtx.message.c);
       const selfieResponse = await fetch(
         telegramDownloadUrl.replace("<token>", ctx.api.token).replace(
           "<file_path>",
           tmpFile.file_path!,
         ),
       );
-
       if (selfieResponse.body) {
         await conversation.external(async () => { // use conversation.external
           const fileName = `${ctx.from?.id}_${

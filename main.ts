@@ -346,7 +346,7 @@ ${entries[entry].automaticThoughts}
           break;
         }
         case "settings-back": {
-          ctx.editMessageText("Done with settings.");
+          await ctx.editMessageText("Done with settings.");
           break;
         }
         default: {

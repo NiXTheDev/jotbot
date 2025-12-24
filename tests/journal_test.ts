@@ -62,8 +62,10 @@ Deno.test("Test updateJournalEntry()", () => {
   insertUser(testUser, testDbFile);
   insertJournalEntry(testJournalEntry, testDbFile);
 
-  const updatedJournalEntry = testJournalEntry;
+  const updatedJournalEntry: JournalEntry = testJournalEntry;
   updatedJournalEntry.content = "I changed the content!";
+  updatedJournalEntry.length = updatedJournalEntry.content.length;
+  updatedJournalEntry.lastEditedTimestamp = Date.now();
 
   const queryResult = updateJournalEntry(updatedJournalEntry, testDbFile);
   assertEquals(queryResult?.changes, 1);

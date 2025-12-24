@@ -10,7 +10,6 @@ import { viewEntriesKeyboard } from "../utils/keyboards.ts";
 import { entryFromString } from "../utils/misc.ts";
 import { InputFile } from "grammy/types";
 import { dbFile } from "../constants/paths.ts";
-// import * as path from "@std/path";
 
 export async function view_entries(conversation: Conversation, ctx: Context) {
   let entries: Entry[] = await conversation.external(() =>

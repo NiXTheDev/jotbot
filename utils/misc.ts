@@ -3,12 +3,15 @@ import {
   DepressionSeverity,
   Entry,
   GAD7Score,
+  JournalEntryPhoto,
   PHQ9Score,
 } from "../types/types.ts";
 import {
   anxietyExplanations,
   depressionExplanations,
+  telegramDownloadUrl,
 } from "../constants/strings.ts";
+import { File } from "grammy/types";
 
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -237,4 +240,45 @@ export function anxietySeverityStringToEnum(
     }
   }
   return severityEnum;
+}
+
+export async function downloadTelegramImage(token: string, caption: string, telegramFile: File, journalEntryId: number): Promise<JournalEntryPhoto> {
+  const journalEntryPhoto: JournalEntryPhoto = {
+    journalEntryId: journalEntryId,
+    path: "",
+    caption: "",
+    fileSize: 0
+  };
+  try {
+    const selfieResponse = await fetch(
+      telegramDownloadUrl.replace("<token>", token).replace(
+        "<file_path>",
+        telegramFile.file_path!,
+      ),
+    );
+
+    journalEntryPhoto.fileSize = telegramFile.file_size!;
+    journalEntryPhoto.caption = caption;
+
+    if (selfieResponse.body) {
+      const fileName = `${journalEntryId}_${
+        new Date(Date.now()).toLocaleString()
+      }.jpg`.replaceAll(" ", "_").replace(",", "").replaceAll("/", "-"); // Build and sanitize selfie file name
+
+      const filePath = `${Deno.cwd()}/assets/journal_entry_images/${fileName}`;
+      const file = await Deno.open(filePath, {
+        write: true,
+        create: true,
+      });
+
+      journalEntryPhoto.path = filePath;
+
+      console.log(`File: ${file}`);
+      journalEntryPhoto.path = await Deno.realPath(filePath);
+      await selfieResponse.body!.pipeTo(file.writable);
+    }
+  } catch (err) {
+    throw err;
+  }
+  return journalEntryPhoto;
 }

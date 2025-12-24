@@ -1,4 +1,5 @@
-/assets/selfies/*.jpg
-/assets/archive/selfies/*.jpg
+/assets/selfies/*
+/assets/archive/selfies/*
+/assets/journal_entry_images/*
 *.db
 jotbot

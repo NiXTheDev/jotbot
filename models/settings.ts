@@ -67,8 +67,24 @@ export function getSettingsById(userId: number, dbFile: PathLike): Settings | un
 
 export function updateCustom404Image(userId: number, imagePath: string | null, dbFile: PathLike) {
   return withDB(dbFile, (db) => {
+    // First, ensure settings exist for this user
+    const existingSettings = db.prepare(
+      `SELECT id FROM settings_db WHERE userId = ?`,
+    ).get(userId);
+
+    if (!existingSettings) {
+      // Create settings record if it doesn't exist
+      console.log(`Creating new settings record for user ${userId}`);
+      const insertResult = db.prepare(
+        `INSERT INTO settings_db (userId, custom404ImagePath) VALUES (?, ?)`,
+      ).run(userId, imagePath);
+      return insertResult;
+    }
+
+    // Update existing settings
+    console.log(`Updating existing settings for user ${userId}`);
     const queryResult = db.prepare(
-      `UPDATE OR FAIL settings_db SET custom404ImagePath = ? WHERE userId = ?`,
+      `UPDATE settings_db SET custom404ImagePath = ? WHERE userId = ?`,
     ).run(imagePath, userId);
 
     if (queryResult.changes === 0) {

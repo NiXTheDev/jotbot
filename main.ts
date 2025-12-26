@@ -35,6 +35,7 @@ import { createDatabase, getLatestId } from "./utils/dbUtils.ts";
 import { getSettingsById, updateSettings } from "./models/settings.ts";
 import { getPhqScoreById } from "./models/phq9_score.ts";
 import { getGadScoreById } from "./models/gad7_score.ts";
+import { view_journal_entries } from "./handlers/view_journal_entries.ts";
 
 if (import.meta.main) {
   // Check if database is present and if not create one
@@ -84,6 +85,7 @@ if (import.meta.main) {
   jotBot.use(createConversation(phq9_assessment));
   jotBot.use(createConversation(gad7_assessment));
   jotBot.use(createConversation(new_journal_entry));
+  jotBot.use(createConversation(view_journal_entries));
 
   jotBotCommands.command("start", "Starts the bot.", async (ctx) => {
     // Check if user exists in Database
@@ -166,6 +168,14 @@ if (import.meta.main) {
       } else {
         await ctx.conversation.enter("view_entries");
       }
+    },
+  );
+
+  jotBotCommands.command(
+    "view_journal_entries",
+    "View stored journal entries",
+    async (ctx) => {
+      await ctx.conversation.enter("view_journal_entries");
     },
   );
 

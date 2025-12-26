@@ -9,25 +9,25 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
   // Describe situation
   await ctx.api.sendMessage(
     ctx.chatId!,
-    "Describe the situation that brought up your thought.",
+    "📝 <b>Step 1: Describe the Situation</b>\n\nDescribe the situation that brought up your thought.\n\n<i>Example: \"I was at work and my boss criticized my presentation.\"</i>",
   );
   const situationCtx = await conversation.waitFor("message:text");
 
   // Record automatic thoughts
   await ctx.reply(
-    `Okay ${ctx.from?.username} describe the thought.  Rate how much you believed it out of 100%.`,
+    `🧠 <b>Step 2: Your Automatic Thought</b>\n\nDescribe the thought that came to mind. Then rate how much you believed it (0-100%).\n\n<i>Example: \"I'm terrible at my job. Belief: 85%\"</i>`,
   );
   const automaticThoughtCtx = await conversation.waitFor("message:text");
 
   // Emoji and emotion descriptor
   await ctx.reply(
-    "Send one word describing your emotions, along with an emoji that matches your emotions.",
+    "😊 <b>Step 3: Your Emotion</b>\n\nSend one word describing your emotion, followed by a matching emoji.\n\n<i>Example: \"anxious 😰\" or \"sad 😢\"</i>\n\nThe emoji should represent how you felt.",
   );
   const emojiAndEmotionName = await conversation.waitFor("message:text");
 
   // Describe your feelings
   await ctx.reply(
-    "What emotions were you feeling at the time?  How intense were your feelings out of 100%?",
+    "💭 <b>Step 4: Emotion Description</b>\n\nDescribe the emotions you were feeling and how intense they were (0-100%).\n\n<i>Example: \"I felt very anxious and overwhelmed. Intensity: 90%\"</i>",
   );
   const emotionDescriptionCtx = await conversation.waitFor("message:text");
 

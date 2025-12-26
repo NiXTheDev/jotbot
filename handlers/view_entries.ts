@@ -10,6 +10,7 @@ import { viewEntriesKeyboard } from "../utils/keyboards.ts";
 import { entryFromString } from "../utils/misc.ts";
 import { InputFile } from "grammy/types";
 import { dbFile } from "../constants/paths.ts";
+import { getSettingsById } from "../models/settings.ts";
 
 export async function view_entries(conversation: Conversation, ctx: Context) {
   let entries: Entry[] = await conversation.external(() =>
@@ -20,6 +21,12 @@ export async function view_entries(conversation: Conversation, ctx: Context) {
   if (entries.length === 0) {
     return await ctx.api.sendMessage(ctx.chatId!, "No entries to view.");
   }
+
+  // Get user settings for custom 404 image
+  const settings = await conversation.external(() =>
+    getSettingsById(ctx.from?.id!, dbFile)
+  );
+  const default404Image = settings?.custom404ImagePath || "assets/404.png";
 
   let currentEntry: number = 0;
   let lastEditedTimestampString = `<b>Last Edited</b> ${
@@ -54,7 +61,7 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
 
   // Reply initially with first entry before starting loop
   const displaySelfieMsg = await ctx.replyWithPhoto(
-    new InputFile(entries[currentEntry].selfiePath! || "assets/404.png"),
+    new InputFile(entries[currentEntry].selfiePath || default404Image),
     { caption: selfieCaptionString, parse_mode: "HTML" },
   );
 
@@ -262,14 +269,14 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
         { reply_markup: viewEntriesKeyboard, parse_mode: "HTML" },
       );
 
-      await ctx.api.editMessageMedia(
-        ctx.chatId!,
-        displaySelfieMsg.message_id,
-        InputMediaBuilder.photo(
-          new InputFile(entries[currentEntry].selfiePath! || "assets/404.png"),
-          { caption: selfieCaptionString, parse_mode: "HTML" },
-        ),
-      );
+       await ctx.api.editMessageMedia(
+         ctx.chatId!,
+         displaySelfieMsg.message_id,
+         InputMediaBuilder.photo(
+           new InputFile(entries[currentEntry].selfiePath || default404Image),
+           { caption: selfieCaptionString, parse_mode: "HTML" },
+         ),
+       );
     } catch (_err) { // Ignore error if message content doesn't change
       continue;
     }

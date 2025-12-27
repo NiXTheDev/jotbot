@@ -1,19 +1,13 @@
-import { DatabaseSync } from "node:sqlite";
 import { JournalEntryPhoto } from "../types/types.ts";
 import { PathLike } from "node:fs";
 import { logger } from "../utils/logger.ts";
+import { withDB } from "../utils/dbHelper.ts";
 
 export function insertJournalEntryPhoto(
   jePhoto: JournalEntryPhoto,
   dbFile: PathLike,
 ) {
-  try {
-    const db = new DatabaseSync(dbFile);
-    if (
-      !(db.prepare("PRAGMA integrity_check;").get()?.integrity_check === "ok")
-    ) throw new Error("JotBot Error: Databaes integrety check failed!");
-    db.exec("PRAGMA foreign_keys = ON;");
-
+  return withDB(dbFile, (db) => {
     const queryResult = db.prepare(
       `INSERT INTO photo_db (entryId, path, caption, fileSize) VALUES (?, ?, ?, ?);`,
     ).run(
@@ -23,12 +17,10 @@ export function insertJournalEntryPhoto(
       jePhoto.fileSize,
     );
 
-    db.close();
+    if (queryResult.changes === 0) {
+      throw new Error("Insert failed: no changes made");
+    }
+
     return queryResult;
-  } catch (err) {
-    logger.error(
-      `Failed to insert journal entry photo into photo_db: ${err}`,
-    );
-    throw err;
-  }
+  });
 }

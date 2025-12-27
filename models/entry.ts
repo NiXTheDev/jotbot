@@ -1,8 +1,8 @@
-import { DatabaseSync, SQLOutputValue } from "node:sqlite";
-import { Entry } from "../types/types.ts";
+import { Entry, EntryContent } from "../types/types.ts";
 import { PathLike } from "node:fs";
 import { sqlFilePath } from "../constants/paths.ts";
 import { logger } from "../utils/logger.ts";
+import { withDB } from "../utils/dbHelper.ts";
 
 const sqlFilePathEntry = `${sqlFilePath}/entry`;
 
@@ -13,32 +13,27 @@ const sqlFilePathEntry = `${sqlFilePath}/entry`;
  * @returns StatementResultingChanges
  */
 export function insertEntry(entry: Entry, dbFile: PathLike) {
-  const db = new DatabaseSync(dbFile);
-  const query = Deno.readTextFileSync(`${sqlFilePathEntry}/insert_entry.sql`)
-    .trim(); // Grab query from file
-  if (
-    !(db.prepare("PRAGMA integrity_check;").get()?.integrity_check === "ok")
-  ) throw new Error("JotBot Error: Database integrity check failed!");
-  db.exec("PRAGMA foreign_keys = ON;");
-  const queryResult = db.prepare(query).run(
-    entry.userId,
-    entry.timestamp!,
-    entry.lastEditedTimestamp || null,
-    entry.situation,
-    entry.automaticThoughts,
-    entry.emotion.emotionName,
-    entry.emotion.emotionEmoji || null,
-    entry.emotion.emotionDescription,
-    entry.selfiePath || null,
-  );
-
-  if (queryResult.changes === 0) {
-    throw new Error(
-      `Query ran but no changes were made.`,
+  return withDB(dbFile, (db) => {
+    const query = Deno.readTextFileSync(`${sqlFilePathEntry}/insert_entry.sql`)
+      .trim();
+    const queryResult = db.prepare(query).run(
+      entry.userId,
+      entry.timestamp!,
+      entry.lastEditedTimestamp || null,
+      entry.situation,
+      entry.automaticThoughts,
+      entry.emotion.emotionName,
+      entry.emotion.emotionEmoji || null,
+      entry.emotion.emotionDescription,
+      entry.selfiePath || null,
     );
-  }
-  db.close();
-  return queryResult;
+
+    if (queryResult.changes === 0) {
+      throw new Error(`Query ran but no changes were made.`);
+    }
+
+    return queryResult;
+  });
 }
 
 /**
@@ -53,13 +48,7 @@ export function updateEntry(
   updatedEntry: Entry,
   dbFile: PathLike,
 ) {
-  try {
-    const db = new DatabaseSync(dbFile);
-    if (
-      !(db.prepare("PRAGMA integrity_check(entry_db);").get()
-        ?.integrity_check === "ok")
-    ) throw new Error("JotBot Error: Database integrity check failed!");
-    db.exec("PRAGMA foreign_keys = ON;");
+  return withDB(dbFile, (db) => {
     const queryResult = db.prepare(
       `UPDATE OR FAIL entry_db SET
       lastEditedTimestamp = ?,
@@ -80,17 +69,11 @@ export function updateEntry(
     );
 
     if (queryResult.changes === 0) {
-      throw new Error(
-        `Query ran but no changes were made.`,
-      );
+      throw new Error(`Query ran but no changes were made.`);
     }
 
-    db.close();
     return queryResult;
-  } catch (err) {
-    logger.error(`Failed to update entry ${entryId}: ${err}`);
-    throw new Error(`Failed to update entry ${entryId} in entry_db: ${err}`);
-  }
+  });
 }
 
 /**
@@ -100,29 +83,17 @@ export function updateEntry(
  * @returns StatementResultingChanges | undefined
  */
 export function deleteEntryById(entryId: number, dbFile: PathLike) {
-  try {
-    const db = new DatabaseSync(dbFile);
-    if (
-      !(db.prepare("PRAGMA integrity_check(entry_db);").get()
-        ?.integrity_check === "ok")
-    ) throw new Error("JotBot Error: Database integrity check failed!");
-    db.exec("PRAGMA foreign_keys = ON;");
+  return withDB(dbFile, (db) => {
     const queryResult = db.prepare(`DELETE FROM entry_db WHERE id = ?;`).run(
       entryId,
     );
 
     if (queryResult.changes === 0) {
-      throw new Error(
-        `Query ran but no changes were made.`,
-      );
+      logger.warn(`No entry found with ID ${entryId} to delete`);
     }
 
-    db.close();
     return queryResult;
-  } catch (err) {
-    logger.error(`Failed to delete entry ${entryId} from entry_db: ${err}`);
-    throw err;
-  }
+  });
 }
 
 /**
@@ -134,38 +105,27 @@ export function getEntryById(
   entryId: number,
   dbFile: PathLike,
 ): Entry | undefined {
-  let queryResult: Record<string, SQLOutputValue> | undefined;
-  try {
-    const db = new DatabaseSync(dbFile);
-    if (
-      !(db.prepare("PRAGMA integrity_check(entry_db);").get()
-        ?.integrity_check === "ok")
-    ) throw new Error("JotBot Error: Database integrity check failed!");
-    db.exec("PRAGMA foreign_keys = ON;");
-    queryResult = db.prepare(`SELECT * FROM entry_db WHERE id = ?;`).get(
+  return withDB(dbFile, (db) => {
+    const queryResult = db.prepare(`SELECT * FROM entry_db WHERE id = ?;`).get(
       entryId,
     );
     if (!queryResult) return undefined;
-    db.close();
-  } catch (err) {
-    logger.error(`Failed to retrieve entry: ${entryId}: ${err}`);
-    throw err;
-  }
 
-  return {
-    id: Number(queryResult.id),
-    userId: Number(queryResult.userId),
-    timestamp: Number(queryResult.timestamp),
-    lastEditedTimestamp: Number(queryResult.lastEditedTimestamp) || null,
-    situation: String(queryResult.situation),
-    automaticThoughts: String(queryResult.automaticThoughts),
-    emotion: {
-      emotionName: String(queryResult.emotionName),
-      emotionEmoji: String(queryResult.emotionEmoji),
-      emotionDescription: String(queryResult.emotionDescription),
-    },
-    selfiePath: queryResult.selfiePath?.toString() || null,
-  };
+    return {
+      id: Number(queryResult.id),
+      userId: Number(queryResult.userId),
+      timestamp: Number(queryResult.timestamp),
+      lastEditedTimestamp: Number(queryResult.lastEditedTimestamp) || null,
+      situation: String(queryResult.situation),
+      automaticThoughts: String(queryResult.automaticThoughts),
+      emotion: {
+        emotionName: String(queryResult.emotionName),
+        emotionEmoji: String(queryResult.emotionEmoji),
+        emotionDescription: String(queryResult.emotionDescription),
+      },
+      selfiePath: queryResult.selfiePath?.toString() || null,
+    };
+  });
 }
 
 /**
@@ -178,15 +138,11 @@ export function getAllEntriesByUserId(
   userId: number,
   dbFile: PathLike,
 ): Entry[] {
-  const entries = [];
-  try {
-    const db = new DatabaseSync(dbFile);
-    if (
-      !(db.prepare("PRAGMA integrity_check;").get()?.integrity_check === "ok")
-    ) throw new Error("JotBot Error: Database integrity check failed!");
+  return withDB(dbFile, (db) => {
     const queryResults = db.prepare(
       `SELECT * FROM entry_db WHERE userId = ? ORDER BY timestamp DESC;`,
     ).all(userId);
+    const entries = [];
     for (const result of queryResults) {
       const entry: Entry = {
         id: Number(result.id),
@@ -205,12 +161,6 @@ export function getAllEntriesByUserId(
 
       entries.push(entry);
     }
-    db.close();
-  } catch (err) {
-    logger.error(
-      `Failed retrieving all entries for user ${userId}: ${err}`,
-    );
-    throw err;
-  }
-  return entries;
+    return entries;
+  });
 }

@@ -1,7 +1,7 @@
 import {
+  ConsoleHandler,
   getLogger,
   type LevelName,
-  ConsoleHandler,
   setup,
 } from "jsr:@std/log@0.224.14";
 

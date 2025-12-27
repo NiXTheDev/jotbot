@@ -22,7 +22,16 @@ Deno.test("Test createDatabase()", () => {
   createDatabase(testDbFile);
 
   // Check that all tables exist
-  const tables = ["user_db", "gad_score_db", "phq_score_db", "entry_db", "settings_db", "journal_db", "journal_entry_photos_db", "voice_recording_db"];
+  const tables = [
+    "user_db",
+    "gad_score_db",
+    "phq_score_db",
+    "entry_db",
+    "settings_db",
+    "journal_db",
+    "journal_entry_photos_db",
+    "voice_recording_db",
+  ];
   for (const _table of tables) {
     // This would throw if table doesn't exist
     // We can't easily test without opening DB, but since no error, assume OK

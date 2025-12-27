@@ -67,10 +67,10 @@ Deno.test("Test updateSettings()", async () => {
     testDbFile,
   );
 
-   assertEquals(queryResult?.changes, 1);
-   assertEquals(queryResult?.lastInsertRowid, 0);
+  assertEquals(queryResult?.changes, 1);
+  assertEquals(queryResult?.lastInsertRowid, 0);
 
-   await Deno.removeSync(testDbFile);
+  await Deno.removeSync(testDbFile);
 });
 
 Deno.test("Test updateCustom404Image()", async () => {

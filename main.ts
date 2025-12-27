@@ -46,13 +46,16 @@ if (import.meta.main) {
   // Check for required environment variables
   const botKey = Deno.env.get("TELEGRAM_BOT_KEY");
   if (!botKey) {
-    console.error("Error: TELEGRAM_BOT_KEY environment variable is not set. Please set it in .env file or environment.");
+    console.error(
+      "Error: TELEGRAM_BOT_KEY environment variable is not set. Please set it in .env file or environment.",
+    );
     Deno.exit(1);
   }
   console.log("Bot key loaded successfully");
 
   // Get optional Telegram API base URL
-  const apiBaseUrl = Deno.env.get("TELEGRAM_API_BASE_URL") || "https://api.telegram.org";
+  const apiBaseUrl = Deno.env.get("TELEGRAM_API_BASE_URL") ||
+    "https://api.telegram.org";
   console.log(`Using Telegram API base URL: ${apiBaseUrl}`);
 
   // Check if db file exists if not create it and the tables
@@ -67,25 +70,25 @@ if (import.meta.main) {
     console.log("Database found!  Starting bot.");
   }
 
-   // Check if selfie directory exists and create it if it doesn't
-   if (!existsSync("assets/selfies")) {
-     try {
-       Deno.mkdir("assets/selfies");
-     } catch (err) {
-       console.error(`Failed to create selfie directory: ${err}`);
-       Deno.exit(1);
-     }
-   }
+  // Check if selfie directory exists and create it if it doesn't
+  if (!existsSync("assets/selfies")) {
+    try {
+      Deno.mkdir("assets/selfies");
+    } catch (err) {
+      console.error(`Failed to create selfie directory: ${err}`);
+      Deno.exit(1);
+    }
+  }
 
-   // Check if 404 images directory exists and create it if it doesn't
-   if (!existsSync("assets/404")) {
-     try {
-       Deno.mkdir("assets/404");
-     } catch (err) {
-       console.error(`Failed to create 404 images directory: ${err}`);
-       Deno.exit(1);
-     }
-   }
+  // Check if 404 images directory exists and create it if it doesn't
+  if (!existsSync("assets/404")) {
+    try {
+      Deno.mkdir("assets/404");
+    } catch (err) {
+      console.error(`Failed to create 404 images directory: ${err}`);
+      Deno.exit(1);
+    }
+  }
 
   type JotBotContext =
     & Context
@@ -357,11 +360,11 @@ ${entries[entry].automaticThoughts}
     await ctx.conversation.enter("new_entry");
   });
 
-   jotBot.callbackQuery(
-     ["smhs", "set-404-image", "settings-back"],
-     async (ctx) => {
-       switch (ctx.callbackQuery.data) {
-         case "smhs": {
+  jotBot.callbackQuery(
+    ["smhs", "set-404-image", "settings-back"],
+    async (ctx) => {
+      switch (ctx.callbackQuery.data) {
+        case "smhs": {
           const settings = getSettingsById(ctx.from?.id!, dbFile);
           console.log(settings);
           if (settings?.storeMentalHealthInfo) {

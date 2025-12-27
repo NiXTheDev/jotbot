@@ -67,7 +67,7 @@ export function updateEntry(
       emotionName = ?,
       emotionEmoji = ?,
       emotionDescription = ?
-      WHERE id = ?;`
+      WHERE id = ?;`,
     ).run(
       updatedEntry.lastEditedTimestamp!,
       updatedEntry.situation!,
@@ -106,7 +106,9 @@ export function deleteEntryById(entryId: number, dbFile: PathLike) {
         ?.integrity_check === "ok")
     ) throw new Error("JotBot Error: Database integrity check failed!");
     db.exec("PRAGMA foreign_keys = ON;");
-    const queryResult = db.prepare(`DELETE FROM entry_db WHERE id = ?;`).run(entryId);
+    const queryResult = db.prepare(`DELETE FROM entry_db WHERE id = ?;`).run(
+      entryId,
+    );
 
     if (queryResult.changes === 0) {
       throw new Error(
@@ -127,7 +129,10 @@ export function deleteEntryById(entryId: number, dbFile: PathLike) {
  * @param dbFile PathLike - Path to the sqlite db file
  * @returns Entry
  */
-export function getEntryById(entryId: number, dbFile: PathLike): Entry | undefined {
+export function getEntryById(
+  entryId: number,
+  dbFile: PathLike,
+): Entry | undefined {
   let queryResult: Record<string, SQLOutputValue> | undefined;
   try {
     const db = new DatabaseSync(dbFile);
@@ -136,7 +141,9 @@ export function getEntryById(entryId: number, dbFile: PathLike): Entry | undefin
         ?.integrity_check === "ok")
     ) throw new Error("JotBot Error: Database integrity check failed!");
     db.exec("PRAGMA foreign_keys = ON;");
-    queryResult = db.prepare(`SELECT * FROM entry_db WHERE id = ?;`).get(entryId);
+    queryResult = db.prepare(`SELECT * FROM entry_db WHERE id = ?;`).get(
+      entryId,
+    );
     if (!queryResult) return undefined;
     db.close();
   } catch (err) {
@@ -176,7 +183,9 @@ export function getAllEntriesByUserId(
     if (
       !(db.prepare("PRAGMA integrity_check;").get()?.integrity_check === "ok")
     ) throw new Error("JotBot Error: Database integrity check failed!");
-    const queryResults = db.prepare(`SELECT * FROM entry_db WHERE userId = ? ORDER BY timestamp DESC;`).all(userId);
+    const queryResults = db.prepare(
+      `SELECT * FROM entry_db WHERE userId = ? ORDER BY timestamp DESC;`,
+    ).all(userId);
     for (const result of queryResults) {
       const entry: Entry = {
         id: Number(result.id),

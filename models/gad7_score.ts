@@ -57,7 +57,10 @@ export function insertGadScore(score: GAD7Score, dbPath: PathLike) {
  * @param dbPath
  * @returns
  */
-export function getGadScoreById(id: number, dbPath: PathLike): GAD7Score | undefined {
+export function getGadScoreById(
+  id: number,
+  dbPath: PathLike,
+): GAD7Score | undefined {
   let gadScore;
   try {
     const db = new DatabaseSync(dbPath);

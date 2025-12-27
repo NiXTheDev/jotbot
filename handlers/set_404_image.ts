@@ -23,33 +23,45 @@ export async function set_404_image(conversation: Conversation, ctx: Context) {
   }
 
   const photo = photoCtx.message.photo[photoCtx.message.photo.length - 1]; // Get largest
-  console.log(`Selected largest photo: file_id=${photo.file_id}, size=${photo.file_size}`);
+  console.log(
+    `Selected largest photo: file_id=${photo.file_id}, size=${photo.file_size}`,
+  );
 
   console.log(`Getting file info for ${photo.file_id}`);
   let tmpFile;
   try {
     tmpFile = await ctx.api.getFile(photo.file_id);
-    console.log(`File info received: path=${tmpFile.file_path}, size=${tmpFile.file_size}`);
+    console.log(
+      `File info received: path=${tmpFile.file_path}, size=${tmpFile.file_size}`,
+    );
   } catch (error) {
     console.error(`Failed to get file info: ${error}`);
-    await ctx.reply("❌ Failed to process the image. Please try uploading again.");
+    await ctx.reply(
+      "❌ Failed to process the image. Please try uploading again.",
+    );
     return;
   }
 
   if (tmpFile.file_size && tmpFile.file_size > 5_000_000) { // 5MB limit
     console.log(`File too large: ${tmpFile.file_size} bytes`);
-    await ctx.reply("Image is too large (max 5MB). Please try a smaller image.");
+    await ctx.reply(
+      "Image is too large (max 5MB). Please try a smaller image.",
+    );
     return;
   }
 
   // Extract relative file path from absolute server path
   // Telegram API expects paths like "photos/file_0.jpg", not "/var/lib/telegram-bot-api/.../photos/file_0.jpg"
   let relativeFilePath = tmpFile.file_path!;
-  if (relativeFilePath.includes('/photos/') || relativeFilePath.includes('/documents/') || relativeFilePath.includes('/videos/')) {
+  if (
+    relativeFilePath.includes("/photos/") ||
+    relativeFilePath.includes("/documents/") ||
+    relativeFilePath.includes("/videos/")
+  ) {
     // Find the last occurrence of known Telegram file directories
-    const photoIndex = relativeFilePath.lastIndexOf('/photos/');
-    const docIndex = relativeFilePath.lastIndexOf('/documents/');
-    const videoIndex = relativeFilePath.lastIndexOf('/videos/');
+    const photoIndex = relativeFilePath.lastIndexOf("/photos/");
+    const docIndex = relativeFilePath.lastIndexOf("/documents/");
+    const videoIndex = relativeFilePath.lastIndexOf("/videos/");
 
     const lastIndex = Math.max(photoIndex, docIndex, videoIndex);
     if (lastIndex !== -1) {
@@ -60,8 +72,13 @@ export async function set_404_image(conversation: Conversation, ctx: Context) {
   console.log(`Using relative file path: ${relativeFilePath}`);
 
   try {
-    const baseUrl = (ctx.api as any).options?.apiRoot || "https://api.telegram.org";
-    const downloadUrl = getTelegramDownloadUrl(baseUrl, ctx.api.token, relativeFilePath);
+    const baseUrl = (ctx.api as any).options?.apiRoot ||
+      "https://api.telegram.org";
+    const downloadUrl = getTelegramDownloadUrl(
+      baseUrl,
+      ctx.api.token,
+      relativeFilePath,
+    );
 
     console.log(`Base URL: ${baseUrl}`);
     console.log(`Download URL: ${downloadUrl}`);
@@ -75,20 +92,30 @@ export async function set_404_image(conversation: Conversation, ctx: Context) {
 
     // If custom API fails, try official API as fallback
     if (!response.ok && baseUrl !== "https://api.telegram.org") {
-      console.log(`Custom API failed, trying official Telegram API as fallback...`);
-      const officialUrl = getTelegramDownloadUrl("https://api.telegram.org", ctx.api.token, relativeFilePath);
+      console.log(
+        `Custom API failed, trying official Telegram API as fallback...`,
+      );
+      const officialUrl = getTelegramDownloadUrl(
+        "https://api.telegram.org",
+        ctx.api.token,
+        relativeFilePath,
+      );
       console.log(`Official URL: ${officialUrl}`);
 
       response = await fetch(officialUrl, {
         signal: AbortSignal.timeout(30000),
       });
 
-      console.log(`Official response: status=${response.status}, ok=${response.ok}`);
+      console.log(
+        `Official response: status=${response.status}, ok=${response.ok}`,
+      );
     }
 
     if (!response.ok) {
-      const errorText = await response.text().catch(() => 'No error text');
-      console.error(`Download failed: status=${response.status}, body="${errorText}"`);
+      const errorText = await response.text().catch(() => "No error text");
+      console.error(
+        `Download failed: status=${response.status}, body="${errorText}"`,
+      );
       throw new Error(`HTTP ${response.status}: ${errorText}`);
     }
 

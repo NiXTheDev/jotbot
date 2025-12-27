@@ -1,8 +1,11 @@
 export const startString: string =
   `Hello!  Welcome to JotBot.  I'm here to help you record your emotions and emotion!`;
 // This will be constructed dynamically using the configured API base URL
-export const getTelegramDownloadUrl = (baseUrl: string, token: string, filePath: string) =>
-  `${baseUrl}/file/bot${token}/${filePath}`;
+export const getTelegramDownloadUrl = (
+  baseUrl: string,
+  token: string,
+  filePath: string,
+) => `${baseUrl}/file/bot${token}/${filePath}`;
 
 export const catImagesApiBaseUrl = `https://cataas.com`;
 export const quotesApiBaseUrl = `https://zenquotes.io/api/quotes/`;

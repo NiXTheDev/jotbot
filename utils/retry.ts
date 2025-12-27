@@ -14,10 +14,10 @@ export class RetryError extends Error {
   constructor(
     message: string,
     public readonly attempts: number,
-    public readonly lastError: any
+    public readonly lastError: any,
   ) {
     super(message);
-    this.name = 'RetryError';
+    this.name = "RetryError";
   }
 }
 
@@ -26,14 +26,14 @@ export class RetryError extends Error {
  */
 export async function withRetry<T>(
   operation: () => Promise<T>,
-  options: RetryOptions = {}
+  options: RetryOptions = {},
 ): Promise<T> {
   const {
     maxAttempts = 3,
     baseDelay = 1000,
     maxDelay = 30000,
     backoffFactor = 2,
-    retryCondition = () => true
+    retryCondition = () => true,
   } = options;
 
   let lastError: any;
@@ -55,17 +55,23 @@ export async function withRetry<T>(
       }
 
       // Calculate delay with exponential backoff
-      const delay = Math.min(baseDelay * Math.pow(backoffFactor, attempt - 1), maxDelay);
+      const delay = Math.min(
+        baseDelay * Math.pow(backoffFactor, attempt - 1),
+        maxDelay,
+      );
 
-      console.log(`Operation failed (attempt ${attempt}/${maxAttempts}), retrying in ${delay}ms:`, (error as any)?.message || error);
-      await new Promise(resolve => setTimeout(resolve, delay));
+      console.log(
+        `Operation failed (attempt ${attempt}/${maxAttempts}), retrying in ${delay}ms:`,
+        (error as any)?.message || error,
+      );
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 
   throw new RetryError(
     `Operation failed after ${maxAttempts} attempts`,
     maxAttempts,
-    lastError
+    lastError,
   );
 }
 
@@ -76,10 +82,16 @@ export const retryConditions = {
   network: (error: unknown) => {
     // Retry on network errors, timeouts, and certain HTTP status codes
     const err = error as any;
-    if (err?.name === 'HttpError' || err?.code === 'ETIMEDOUT' || err?.code === 'ENOTFOUND') {
+    if (
+      err?.name === "HttpError" || err?.code === "ETIMEDOUT" ||
+      err?.code === "ENOTFOUND"
+    ) {
       return true;
     }
-    if (err?.message?.includes('Network request') || err?.message?.includes('timeout')) {
+    if (
+      err?.message?.includes("Network request") ||
+      err?.message?.includes("timeout")
+    ) {
       return true;
     }
     return false;
@@ -88,10 +100,12 @@ export const retryConditions = {
   database: (error: unknown) => {
     // Retry on database connection issues, locks, etc.
     const err = error as any;
-    if (err?.code === 'SQLITE_BUSY' || err?.code === 'SQLITE_LOCKED') {
+    if (err?.code === "SQLITE_BUSY" || err?.code === "SQLITE_LOCKED") {
       return true;
     }
-    if (err?.message?.includes('database') || err?.message?.includes('SQLITE')) {
+    if (
+      err?.message?.includes("database") || err?.message?.includes("SQLITE")
+    ) {
       return true;
     }
     return false;
@@ -107,5 +121,5 @@ export const retryConditions = {
       return true;
     }
     return retryConditions.network(error);
-  }
+  },
 };

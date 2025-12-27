@@ -7,7 +7,10 @@ import { DatabaseSync } from "node:sqlite";
  * @param callback Function to execute with the database instance
  * @returns The result of the callback
  */
-export function withDB<T>(dbFile: PathLike, callback: (db: DatabaseSync) => T): T {
+export function withDB<T>(
+  dbFile: PathLike,
+  callback: (db: DatabaseSync) => T,
+): T {
   const db = new DatabaseSync(dbFile);
   try {
     if (

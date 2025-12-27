@@ -30,7 +30,7 @@ export function createDatabase(dbFile: PathLike) {
     createJournalTable(dbFile);
     createJournalEntryPhotosTable(dbFile);
     createVoiceRecordingTable(dbFile);
-    addCustom404Column(dbFile);  // Add custom 404 column migration
+    addCustom404Column(dbFile); // Add custom 404 column migration
   } catch (err) {
     console.error(err);
     throw new Error(`Failed to create database: ${err}`);

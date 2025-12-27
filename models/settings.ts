@@ -48,7 +48,10 @@ export function updateSettings(
  * @param dbFile
  * @returns
  */
-export function getSettingsById(userId: number, dbFile: PathLike): Settings | undefined {
+export function getSettingsById(
+  userId: number,
+  dbFile: PathLike,
+): Settings | undefined {
   return withDB(dbFile, (db) => {
     const queryResult = db.prepare(
       `SELECT * FROM settings_db WHERE userId = ?`,
@@ -65,7 +68,11 @@ export function getSettingsById(userId: number, dbFile: PathLike): Settings | un
   });
 }
 
-export function updateCustom404Image(userId: number, imagePath: string | null, dbFile: PathLike) {
+export function updateCustom404Image(
+  userId: number,
+  imagePath: string | null,
+  dbFile: PathLike,
+) {
   return withDB(dbFile, (db) => {
     // First, ensure settings exist for this user
     const existingSettings = db.prepare(

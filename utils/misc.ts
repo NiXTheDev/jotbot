@@ -9,7 +9,7 @@ import {
 import {
   anxietyExplanations,
   depressionExplanations,
-   getTelegramDownloadUrl,
+  getTelegramDownloadUrl,
 } from "../constants/strings.ts";
 import { File } from "grammy/types";
 

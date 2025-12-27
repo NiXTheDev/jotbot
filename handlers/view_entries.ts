@@ -269,14 +269,14 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
         { reply_markup: viewEntriesKeyboard, parse_mode: "HTML" },
       );
 
-       await ctx.api.editMessageMedia(
-         ctx.chatId!,
-         displaySelfieMsg.message_id,
-         InputMediaBuilder.photo(
-           new InputFile(entries[currentEntry].selfiePath || default404Image),
-           { caption: selfieCaptionString, parse_mode: "HTML" },
-         ),
-       );
+      await ctx.api.editMessageMedia(
+        ctx.chatId!,
+        displaySelfieMsg.message_id,
+        InputMediaBuilder.photo(
+          new InputFile(entries[currentEntry].selfiePath || default404Image),
+          { caption: selfieCaptionString, parse_mode: "HTML" },
+        ),
+      );
     } catch (_err) { // Ignore error if message content doesn't change
       continue;
     }

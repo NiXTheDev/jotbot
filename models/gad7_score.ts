@@ -81,14 +81,23 @@ export function getGadScoreById(
     console.error(`Failed to get GAD-7 score ${id}: ${err}`);
     throw new Error(`Failed to get GAD-7 score ${id}: ${err}`);
   }
+  const gadScoreData = gadScore as {
+    id: number;
+    userId: number;
+    timestamp: number;
+    score: number;
+    severity: string | null;
+    action: string | null;
+    impactQuestionAnswer: string | null;
+  };
   return {
-    id: Number(gadScore.id),
-    userId: Number(gadScore.userId),
-    timestamp: Number(gadScore.timestamp),
-    score: Number(gadScore.score),
-    severity: anxietySeverityStringToEnum(gadScore.severity.toString()),
-    action: gadScore.action.toString(),
-    impactQuestionAnswer: gadScore.impactQuestionAnswer.toString(),
+    id: Number(gadScoreData.id),
+    userId: Number(gadScoreData.userId),
+    timestamp: Number(gadScoreData.timestamp),
+    score: Number(gadScoreData.score),
+    severity: anxietySeverityStringToEnum(gadScoreData.severity?.toString() ?? ""),
+    action: gadScoreData.action?.toString() ?? "",
+    impactQuestionAnswer: gadScoreData.impactQuestionAnswer?.toString() ?? "",
   };
 }
 

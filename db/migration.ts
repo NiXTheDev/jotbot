@@ -117,8 +117,10 @@ export function addCustom404Column(dbFile: PathLike) {
     const db = new DatabaseSync(dbFile);
     db.exec("PRAGMA foreign_keys = ON;");
     // Check if column exists to avoid errors
-    const columns = db.prepare("PRAGMA table_info(settings_db);").all();
-    const hasColumn = columns.some((col: { name: string }) =>
+    const columns = db.prepare("PRAGMA table_info(settings_db);").all() as {
+      name: string;
+    }[];
+    const hasColumn = columns.some((col) =>
       col.name === "custom404ImagePath"
     );
     if (!hasColumn) {

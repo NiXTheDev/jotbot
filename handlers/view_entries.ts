@@ -11,6 +11,7 @@ import { entryFromString } from "../utils/misc.ts";
 import { InputFile } from "grammy/types";
 import { dbFile } from "../constants/paths.ts";
 import { getSettingsById } from "../models/settings.ts";
+import { logger } from "../utils/logger.ts";
 
 export async function view_entries(conversation: Conversation, ctx: Context) {
   let entries: Entry[] = await conversation.external(() =>
@@ -174,7 +175,6 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
         );
         const editEntryCtx = await conversation.waitFor("message:text");
 
-        // console.log(`Entry to edit: ${editEntryCtx.message.text}`);
         let entryToEdit: Entry;
         try {
           entryToEdit = entryFromString(editEntryCtx.message.text);
@@ -184,12 +184,12 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
             return Date.now();
           });
 
-          console.log(entryToEdit);
+          logger.debug(`Entry to edit: ${JSON.stringify(entryToEdit)}`);
         } catch (err) {
           await editEntryCtx.reply(
             `There was an error reading your edited entry.  Make sure you are only editing the parts that YOU typed!`,
           );
-          console.log(err);
+          logger.error(`Error reading edited entry: ${err}`);
         }
 
         await editEntryCtx.api.deleteMessage(ctx.chatId!, editEntryCtx.msgId);
@@ -202,7 +202,7 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
           await editEntryCtx.reply(
             `I'm sorry I ran into an error while trying to save your changes.`,
           );
-          console.log(err);
+          logger.error(`Error updating entry: ${err}`);
         }
         // Refresh entries
         entries = await conversation.external(() =>
@@ -227,8 +227,6 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
         );
       }
     }
-
-    // console.log(entries[currentEntry]);
 
     lastEditedTimestampString = `<b>Last Edited</b> ${
       entries[currentEntry].lastEditedTimestamp

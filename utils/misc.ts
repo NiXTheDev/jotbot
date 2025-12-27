@@ -12,6 +12,7 @@ import {
   getTelegramDownloadUrl,
 } from "../constants/strings.ts";
 import { File } from "grammy/types";
+import { logger } from "./logger.ts";
 
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -36,7 +37,7 @@ export function entryFromString(entryString: string): Entry {
     const emotionArr = emotion!.split(" ");
     const emotionName = emotionArr[0], emotionEmoji = emotionArr[1];
 
-    console.log(emotionArr);
+    logger.debug(`Parsed emotion array: ${JSON.stringify(emotionArr)}`);
 
     return {
       userId: 0,
@@ -132,7 +133,7 @@ export function calcPhq9Score(
     depressionSeverity = DepressionSeverity.SEVERE;
     depressionExplanation = depressionExplanations.severe;
   } else {
-    console.log("Depression Score out of bounds!");
+    logger.error("Depression Score out of bounds!");
   }
 
   return {
@@ -166,7 +167,7 @@ export function calcGad7Score(
     anxietySeverity = AnxietySeverity.MODERATE_TO_SEVERE_ANXIETY;
     anxietyExplanation = anxietyExplanations.severe_anxiety;
   } else {
-    console.log("Depression Score out of bounds!");
+    logger.error("Anxiety Score out of bounds!");
   }
 
   return {
@@ -276,7 +277,7 @@ export async function downloadTelegramImage(
 
       journalEntryPhoto.path = filePath;
 
-      console.log(`File: ${file}`);
+      logger.debug(`Saving file: ${filePath}`);
       journalEntryPhoto.path = await Deno.realPath(filePath);
       await selfieResponse.body!.pipeTo(file.writable);
     }

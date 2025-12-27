@@ -1,6 +1,7 @@
 import { DatabaseSync } from "node:sqlite";
 import { User } from "../types/types.ts";
 import { PathLike } from "node:fs";
+import { logger } from "../utils/logger.ts";
 
 /**
  * @param user
@@ -27,7 +28,7 @@ export function insertUser(user: User, dbPath: PathLike) {
     db.close();
     return queryResult;
   } catch (err) {
-    console.error(
+    logger.error(
       `Failed to insert user: ${user.username} into database: ${err}`,
     );
   }
@@ -50,7 +51,7 @@ export function deleteUser(userTelegramId: number, dbFile: PathLike) {
 
     db.close();
   } catch (err) {
-    console.error(
+    logger.error(
       `Failed to delete user ${userTelegramId} from database: ${err}`,
     );
   }
@@ -78,7 +79,7 @@ export function userExists(userTelegramId: number, dbFile: PathLike): boolean {
     }
     db.close();
   } catch (err) {
-    console.error(
+    logger.error(
       `Failed to check if user ${userTelegramId} exists in database: ${err}`,
     );
   }

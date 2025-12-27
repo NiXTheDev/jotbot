@@ -2,6 +2,7 @@ import { PathLike } from "node:fs";
 import { JournalEntry } from "../types/types.ts";
 import { DatabaseSync } from "node:sqlite";
 import { sqlFilePath } from "../constants/paths.ts";
+import { logger } from "../utils/logger.ts";
 
 const sqlPath = `${sqlFilePath}/journal_entry`;
 
@@ -35,7 +36,7 @@ export function insertJournalEntry(
     db.close();
     return queryResult;
   } catch (err) {
-    console.error(
+    logger.error(
       `Failed to insert journal entry into journal_db: ${err}`,
     );
     throw err;
@@ -69,7 +70,7 @@ export function updateJournalEntry(
     db.close();
     return queryResult;
   } catch (err) {
-    console.error(`Failed to update journal entry ${journalEntry.id}: ${err}`);
+    logger.error(`Failed to update journal entry ${journalEntry.id}: ${err}`);
   }
 }
 
@@ -96,7 +97,7 @@ export function deleteJournalEntryById(
     db.close();
     return queryResult;
   } catch (err) {
-    console.error(`Failed to retrieve journal entry ${id}: ${err}`);
+    logger.error(`Failed to retrieve journal entry ${id}: ${err}`);
   }
 }
 
@@ -132,7 +133,7 @@ export function getJournalEntryById(
       length: Number(journalEntry?.length!),
     };
   } catch (err) {
-    console.error(`Failed to retrieve journal entry ${id}: ${err}`);
+    logger.error(`Failed to retrieve journal entry ${id}: ${err}`);
   }
 }
 
@@ -172,7 +173,7 @@ export function getAllJournalEntriesByUserId(userId: number, dbFile: PathLike) {
     }
     db.close();
   } catch (err) {
-    console.error(
+    logger.error(
       `Failed to retrieve entries that belong to ${userId}: ${err}`,
     );
   }

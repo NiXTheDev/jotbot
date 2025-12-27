@@ -1,4 +1,5 @@
 import { catImagesApiBaseUrl } from "../constants/strings.ts";
+import { logger } from "./logger.ts";
 
 export class KittyEngine {
   baseUrl: string = catImagesApiBaseUrl;
@@ -26,8 +27,8 @@ export class KittyEngine {
       },
     );
     const json = await response.json();
-    console.log(
-      `${this.baseUrl}/cat/${
+    logger.debug(
+      `Fetching cat from: ${this.baseUrl}/cat/${
         this.tagString?.toLocaleLowerCase().replaceAll(" ", "")
       }`,
     );

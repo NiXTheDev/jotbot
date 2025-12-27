@@ -4,6 +4,7 @@ import { Emotion, Entry } from "../types/types.ts";
 import { insertEntry } from "../models/entry.ts";
 import { telegramDownloadUrl } from "../constants/strings.ts";
 import { dbFile } from "../constants/paths.ts";
+import { logger } from "../utils/logger.ts";
 
 export async function new_entry(conversation: Conversation, ctx: Context) {
   try {
@@ -77,7 +78,6 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
         const selfiePathCtx = await conversation.waitFor("message:photo");
 
         const tmpFile = await selfiePathCtx.getFile();
-        // console.log(selfiePathCtx.message.c);
         const selfieResponse = await fetch(
           telegramDownloadUrl.replace("<token>", ctx.api.token).replace(
             "<file_path>",
@@ -96,7 +96,7 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
               create: true,
             });
 
-            console.log(`File: ${file}`);
+            logger.debug(`Saving selfie file: ${filePath}`);
             selfiePath = await Deno.realPath(filePath);
             await selfieResponse.body!.pipeTo(file.writable);
           });
@@ -104,13 +104,13 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
           await ctx.reply(`Selfie saved successfully!`);
         }
       } catch (err) {
-        console.log(`Jotbot Error: Failed to save selfie: ${err}`);
+        logger.error(`Failed to save selfie: ${err}`);
       }
     } else if (selfieCtx.callbackQuery.data === "selfie-no") {
       selfiePath = null;
     } else {
-      console.log(
-        `Invalid Selection: ${selfieCtx.callbackQuery.data}`,
+      logger.error(
+        `Invalid callback query selection: ${selfieCtx.callbackQuery.data}`,
       );
     }
 
@@ -126,7 +126,7 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
     try {
       await conversation.external(() => insertEntry(entry, dbFile));
     } catch (err) {
-      console.log(`Failed to insert Entry: ${err}`);
+      logger.error(`Failed to insert entry: ${err}`);
       return await ctx.reply(`Failed to insert entry: ${err}`);
     }
 
@@ -136,16 +136,15 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
       }!  Thank you for logging your emotion with me.`,
     );
   } catch (error) {
-    console.error(
-      `Error in new_entry conversation for user ${ctx.from?.id}:`,
-      error,
+    logger.error(
+      `Error in new_entry conversation for user ${ctx.from?.id}: ${error}`,
     );
     try {
       await ctx.reply(
         "❌ Sorry, there was an error creating your entry. Please try again with /new_entry.",
       );
     } catch (replyError) {
-      console.error(`Failed to send error message: ${replyError}`);
+      logger.error(`Failed to send error message: ${replyError}`);
     }
     // Don't rethrow - let the conversation end gracefully
   }

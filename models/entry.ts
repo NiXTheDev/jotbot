@@ -2,6 +2,7 @@ import { DatabaseSync, SQLOutputValue } from "node:sqlite";
 import { Entry } from "../types/types.ts";
 import { PathLike } from "node:fs";
 import { sqlFilePath } from "../constants/paths.ts";
+import { logger } from "../utils/logger.ts";
 
 const sqlFilePathEntry = `${sqlFilePath}/entry`;
 
@@ -87,7 +88,7 @@ export function updateEntry(
     db.close();
     return queryResult;
   } catch (err) {
-    console.error(`Failed to update entry ${entryId}: ${err}`);
+    logger.error(`Failed to update entry ${entryId}: ${err}`);
     throw new Error(`Failed to update entry ${entryId} in entry_db: ${err}`);
   }
 }
@@ -119,7 +120,7 @@ export function deleteEntryById(entryId: number, dbFile: PathLike) {
     db.close();
     return queryResult;
   } catch (err) {
-    console.error(`Failed to delete entry ${entryId} from entry_db: ${err}`);
+    logger.error(`Failed to delete entry ${entryId} from entry_db: ${err}`);
     throw err;
   }
 }
@@ -147,7 +148,7 @@ export function getEntryById(
     if (!queryResult) return undefined;
     db.close();
   } catch (err) {
-    console.error(`Failed to retrieve entry: ${entryId}: ${err}`);
+    logger.error(`Failed to retrieve entry: ${entryId}: ${err}`);
     throw err;
   }
 
@@ -206,8 +207,8 @@ export function getAllEntriesByUserId(
     }
     db.close();
   } catch (err) {
-    console.error(
-      `Jotbot Error: Failed retrieving all entries for user ${userId}: ${err}`,
+    logger.error(
+      `Failed retrieving all entries for user ${userId}: ${err}`,
     );
     throw err;
   }

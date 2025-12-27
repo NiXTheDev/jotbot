@@ -11,6 +11,7 @@ import {
 } from "../db/migration.ts";
 import { DatabaseSync } from "node:sqlite";
 import { PathLike } from "node:fs";
+import { logger } from "./logger.ts";
 
 /**
  * @param dbFile
@@ -32,7 +33,7 @@ export function createDatabase(dbFile: PathLike) {
     createVoiceRecordingTable(dbFile);
     addCustom404Column(dbFile); // Add custom 404 column migration
   } catch (err) {
-    console.error(err);
+    logger.error(`Failed to create database: ${err}`);
     throw new Error(`Failed to create database: ${err}`);
   }
 }
@@ -53,7 +54,7 @@ export function getLatestId(
       .replace("<TABLE_NAME>", tableName).trim();
     id = db.prepare(query).get();
   } catch (err) {
-    console.error(`Failed to retrieve latest id from ${tableName}: ${err}`);
+    logger.error(`Failed to retrieve latest id from ${tableName}: ${err}`);
   }
   return Number(id?.max_id) || 0;
 }

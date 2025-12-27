@@ -1,6 +1,7 @@
 import { PathLike } from "node:fs";
 import { Settings } from "../types/types.ts";
 import { withDB } from "../utils/dbHelper.ts";
+import { logger } from "../utils/logger.ts";
 
 /**
  * @param userId
@@ -81,7 +82,7 @@ export function updateCustom404Image(
 
     if (!existingSettings) {
       // Create settings record if it doesn't exist
-      console.log(`Creating new settings record for user ${userId}`);
+      logger.debug(`Creating new settings record for user ${userId}`);
       const insertResult = db.prepare(
         `INSERT INTO settings_db (userId, custom404ImagePath) VALUES (?, ?)`,
       ).run(userId, imagePath);
@@ -89,7 +90,7 @@ export function updateCustom404Image(
     }
 
     // Update existing settings
-    console.log(`Updating existing settings for user ${userId}`);
+    logger.debug(`Updating existing settings for user ${userId}`);
     const queryResult = db.prepare(
       `UPDATE settings_db SET custom404ImagePath = ? WHERE userId = ?`,
     ).run(imagePath, userId);

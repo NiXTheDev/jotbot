@@ -1,6 +1,7 @@
 import { DatabaseSync } from "node:sqlite";
 import { JournalEntryPhoto } from "../types/types.ts";
 import { PathLike } from "node:fs";
+import { logger } from "../utils/logger.ts";
 
 export function insertJournalEntryPhoto(
   jePhoto: JournalEntryPhoto,
@@ -25,7 +26,7 @@ export function insertJournalEntryPhoto(
     db.close();
     return queryResult;
   } catch (err) {
-    console.error(
+    logger.error(
       `Failed to insert journal entry photo into photo_db: ${err}`,
     );
     throw err;

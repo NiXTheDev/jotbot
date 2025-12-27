@@ -29,6 +29,7 @@ import { view_entries } from "./handlers/view_entries.ts";
 import { crisisString, helpString } from "./constants/strings.ts";
 import { kitties } from "./handlers/kitties.ts";
 import { phq9_assessment } from "./handlers/phq9_assessment.ts";
+import { logger } from "./utils/logger.ts";
 import { gad7_assessment } from "./handlers/gad7_assessment.ts";
 import { new_journal_entry } from "./handlers/new_journal_entry.ts";
 import { set_404_image } from "./handlers/set_404_image.ts";
@@ -46,28 +47,28 @@ if (import.meta.main) {
   // Check for required environment variables
   const botKey = Deno.env.get("TELEGRAM_BOT_KEY");
   if (!botKey) {
-    console.error(
-      "Error: TELEGRAM_BOT_KEY environment variable is not set. Please set it in .env file or environment.",
+    logger.error(
+      "TELEGRAM_BOT_KEY environment variable is not set. Please set it in .env file or environment.",
     );
     Deno.exit(1);
   }
-  console.log("Bot key loaded successfully");
+  logger.info("Bot key loaded successfully");
 
   // Get optional Telegram API base URL
   const apiBaseUrl = Deno.env.get("TELEGRAM_API_BASE_URL") ||
     "https://api.telegram.org";
-  console.log(`Using Telegram API base URL: ${apiBaseUrl}`);
+  logger.info(`Using Telegram API base URL: ${apiBaseUrl}`);
 
   // Check if db file exists if not create it and the tables
   if (!existsSync(dbFile)) {
     try {
-      console.log("No Database Found creating a new database");
+      logger.info("No Database Found creating a new database");
       createDatabase(dbFile);
     } catch (err) {
-      console.error(`Failed to created database: ${err}`);
+      logger.error(`Failed to create database: ${err}`);
     }
   } else {
-    console.log("Database found!  Starting bot.");
+    logger.info("Database found! Starting bot.");
   }
 
   // Check if selfie directory exists and create it if it doesn't
@@ -75,7 +76,7 @@ if (import.meta.main) {
     try {
       Deno.mkdir("assets/selfies");
     } catch (err) {
-      console.error(`Failed to create selfie directory: ${err}`);
+      logger.error(`Failed to create selfie directory: ${err}`);
       Deno.exit(1);
     }
   }
@@ -85,7 +86,7 @@ if (import.meta.main) {
     try {
       Deno.mkdir("assets/404");
     } catch (err) {
-      console.error(`Failed to create 404 images directory: ${err}`);
+      logger.error(`Failed to create 404 images directory: ${err}`);
       Deno.exit(1);
     }
   }
@@ -366,7 +367,11 @@ ${entries[entry].automaticThoughts}
       switch (ctx.callbackQuery.data) {
         case "smhs": {
           const settings = getSettingsById(ctx.from?.id!, dbFile);
-          console.log(settings);
+          logger.debug(
+            `Retrieved settings for user ${ctx.from?.id}: ${
+              JSON.stringify(settings)
+            }`,
+          );
           if (settings?.storeMentalHealthInfo) {
             settings.storeMentalHealthInfo = false;
             await ctx.editMessageText(
@@ -405,7 +410,7 @@ ${entries[entry].automaticThoughts}
   );
 
   jotBot.catch((err) => {
-    console.log(`JotBot Error: ${err.message}`);
+    logger.error(`JotBot Error: ${err.message}`);
   });
   jotBot.use(jotBotCommands);
   jotBot.filter(commandNotFound(jotBotCommands))

@@ -1,3 +1,5 @@
+import { logger } from "./logger.ts";
+
 /**
  * Retry utility for operations that might fail intermittently
  */
@@ -60,9 +62,10 @@ export async function withRetry<T>(
         maxDelay,
       );
 
-      console.log(
-        `Operation failed (attempt ${attempt}/${maxAttempts}), retrying in ${delay}ms:`,
-        error instanceof Error ? error.message : String(error),
+      logger.info(
+        `Operation failed (attempt ${attempt}/${maxAttempts}), retrying in ${delay}ms: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
       );
       await new Promise((resolve) => setTimeout(resolve, delay));
     }

@@ -8,6 +8,7 @@ import {
 import { dbFile } from "../constants/paths.ts";
 import { downloadTelegramImage } from "../utils/misc.ts";
 import { insertJournalEntryPhoto } from "../models/journal_entry_photo.ts";
+import { logger } from "../utils/logger.ts";
 
 /**
  * Starts the process of creating a new journal entry.
@@ -33,7 +34,7 @@ export async function new_journal_entry(
     };
     await conversation.external(() => insertJournalEntry(journalEntry, dbFile));
   } catch (err) {
-    console.error(`Failed to insert Journal Entry: ${err}`);
+    logger.error(`Failed to insert Journal Entry: ${err}`);
     await ctx.reply(`Failed to insert Journal Entry: ${err}`);
     throw new Error(`Failed to insert Journal Entry: ${err}`);
   }
@@ -68,14 +69,14 @@ export async function new_journal_entry(
           id, // Latest ID
         )
       );
-      console.log(journalEntryPhoto);
+      logger.debug(`Journal entry photo: ${JSON.stringify(journalEntryPhoto)}`);
       await conversation.external(() =>
         insertJournalEntryPhoto(journalEntryPhoto, dbFile)
       );
       await ctx.reply(`Saved photo!`);
       imageCount++;
     } catch (err) {
-      console.error(
+      logger.error(
         `Failed to save images for Journal Entry ${getAllJournalEntriesByUserId(
           ctx.from?.id!,
           dbFile,

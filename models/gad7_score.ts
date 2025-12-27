@@ -2,6 +2,7 @@ import { DatabaseSync } from "node:sqlite";
 import { GAD7Score } from "../types/types.ts";
 import { PathLike } from "node:fs";
 import { anxietySeverityStringToEnum } from "../utils/misc.ts";
+import { logger } from "../utils/logger.ts";
 
 /**
  * Insert GAD-7 score into gad_score_db table
@@ -37,10 +38,12 @@ export function insertGadScore(score: GAD7Score, dbPath: PathLike) {
 
     db.close();
   } catch (err) {
-    console.error(`Failed to insert gad-7 score: ${err}`);
+    logger.error(`Failed to insert gad-7 score: ${err}`);
     throw new Error(`Failed to insert GAD-7 score: ${err}`);
   }
-  console.log(queryResult);
+  logger.debug(
+    `GAD-7 score inserted successfully: ${JSON.stringify(queryResult)}`,
+  );
   return queryResult;
 }
 
@@ -74,11 +77,11 @@ export function getGadScoreById(
     gadScore = db.prepare(`SELECT * FROM gad_score_db WHERE id = ?;`).get(id);
     if (!gadScore) return undefined;
 
-    console.log(gadScore);
+    logger.debug(`Retrieved GAD-7 score: ${JSON.stringify(gadScore)}`);
 
     db.close();
   } catch (err) {
-    console.error(`Failed to get GAD-7 score ${id}: ${err}`);
+    logger.error(`Failed to get GAD-7 score ${id}: ${err}`);
     throw new Error(`Failed to get GAD-7 score ${id}: ${err}`);
   }
   const gadScoreData = gadScore as {

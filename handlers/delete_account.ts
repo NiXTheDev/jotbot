@@ -3,6 +3,7 @@ import { Conversation } from "@grammyjs/conversations";
 import { deleteAccountConfirmKeyboard } from "../utils/keyboards.ts";
 import { deleteUser } from "../models/user.ts";
 import { dbFile } from "../constants/paths.ts";
+import { logger } from "../utils/logger.ts";
 
 export async function delete_account(conversation: Conversation, ctx: Context) {
   try {
@@ -27,7 +28,7 @@ export async function delete_account(conversation: Conversation, ctx: Context) {
       `Okay ${ctx.from?.username} your account has been terminated along with all of your entries.  Thanks for trying Jotbot!`,
     );
   } catch (err) {
-    console.log(
+    logger.error(
       `Failed to delete user ${ctx.from?.username}: ${err}`,
     );
     return await ctx.editMessageText(

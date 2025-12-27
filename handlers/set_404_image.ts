@@ -72,7 +72,8 @@ export async function set_404_image(conversation: Conversation, ctx: Context) {
   console.log(`Using relative file path: ${relativeFilePath}`);
 
   try {
-    const baseUrl = (ctx.api as any).options?.apiRoot ||
+    const baseUrl = (ctx.api as { options?: { apiRoot?: string } }).options
+      ?.apiRoot ||
       "https://api.telegram.org";
     const downloadUrl = getTelegramDownloadUrl(
       baseUrl,

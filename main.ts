@@ -1,4 +1,4 @@
-import { Api, Bot, Context, InlineQueryResultBuilder } from "grammy";
+import { Bot, Context, InlineQueryResultBuilder } from "grammy";
 import { load } from "@std/dotenv";
 import {
   type ConversationFlavor,

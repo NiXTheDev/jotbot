@@ -14,7 +14,7 @@ export class RetryError extends Error {
   constructor(
     message: string,
     public readonly attempts: number,
-    public readonly lastError: any,
+    public readonly lastError: unknown,
   ) {
     super(message);
     this.name = "RetryError";
@@ -36,7 +36,7 @@ export async function withRetry<T>(
     retryCondition = () => true,
   } = options;
 
-  let lastError: any;
+  let lastError: unknown;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
@@ -62,7 +62,7 @@ export async function withRetry<T>(
 
       console.log(
         `Operation failed (attempt ${attempt}/${maxAttempts}), retrying in ${delay}ms:`,
-        (error as any)?.message || error,
+        error instanceof Error ? error.message : String(error),
       );
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
@@ -81,7 +81,7 @@ export async function withRetry<T>(
 export const retryConditions = {
   network: (error: unknown) => {
     // Retry on network errors, timeouts, and certain HTTP status codes
-    const err = error as any;
+    const err = error as { name?: string; code?: string; message?: string };
     if (
       err?.name === "HttpError" || err?.code === "ETIMEDOUT" ||
       err?.code === "ENOTFOUND"
@@ -99,7 +99,7 @@ export const retryConditions = {
 
   database: (error: unknown) => {
     // Retry on database connection issues, locks, etc.
-    const err = error as any;
+    const err = error as { code?: string; message?: string };
     if (err?.code === "SQLITE_BUSY" || err?.code === "SQLITE_LOCKED") {
       return true;
     }
@@ -113,11 +113,11 @@ export const retryConditions = {
 
   api: (error: unknown) => {
     // Retry on API rate limits, temporary server errors
-    const err = error as any;
+    const err = error as { error_code?: number };
     if (err?.error_code === 429) { // Rate limit
       return true;
     }
-    if (err?.error_code >= 500 && err?.error_code < 600) { // Server errors
+    if (err?.error_code !== undefined && err.error_code >= 500 && err.error_code < 600) { // Server errors
       return true;
     }
     return retryConditions.network(error);

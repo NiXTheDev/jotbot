@@ -10,21 +10,37 @@ import { viewEntriesKeyboard } from "../utils/keyboards.ts";
 import { entryFromString } from "../utils/misc.ts";
 import { InputFile } from "grammy/types";
 import { dbFile } from "../constants/paths.ts";
+import { getSettingsById } from "../models/settings.ts";
+import { logger } from "../utils/logger.ts";
 
 export async function view_entries(conversation: Conversation, ctx: Context) {
+  if (!ctx.from) {
+    await ctx.reply("Error: Unable to identify user.");
+    return;
+  }
+  if (!ctx.chatId) {
+    await ctx.reply("Error: Unable to identify chat.");
+    return;
+  }
   let entries: Entry[] = await conversation.external(() =>
-    getAllEntriesByUserId(ctx.from?.id!, dbFile)
+    getAllEntriesByUserId(ctx.from.id, dbFile)
   );
 
   // If there are no stored entries inform user and stop conversation
   if (entries.length === 0) {
-    return await ctx.api.sendMessage(ctx.chatId!, "No entries to view.");
+    return await ctx.api.sendMessage(ctx.chatId, "No entries to view.");
   }
+
+  // Get user settings for custom 404 image
+  const settings = await conversation.external(() =>
+    getSettingsById(ctx.from.id, dbFile)
+  );
+  const default404Image = settings?.custom404ImagePath || "assets/404.png";
 
   let currentEntry: number = 0;
   let lastEditedTimestampString = `<b>Last Edited</b> ${
     entries[currentEntry].lastEditedTimestamp
-      ? new Date(entries[currentEntry].lastEditedTimestamp!).toLocaleString()
+      ? new Date(entries[currentEntry].lastEditedTimestamp).toLocaleString()
       : ""
   }`;
   let selfieCaptionString = `Page <b>${
@@ -32,7 +48,7 @@ export async function view_entries(conversation: Conversation, ctx: Context) {
   }</b> of <b>${entries.length}</b>
 
 <b>Date Created</b> ${
-    new Date(entries[currentEntry].timestamp!).toLocaleString()
+    new Date(entries[currentEntry].timestamp).toLocaleString()
   }
 ${entries[currentEntry].lastEditedTimestamp ? lastEditedTimestampString : ""}
 <b><u>Emotion</u></b>
@@ -54,11 +70,11 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
 
   // Reply initially with first entry before starting loop
   const displaySelfieMsg = await ctx.replyWithPhoto(
-    new InputFile(entries[currentEntry].selfiePath! || "assets/404.png"),
+    new InputFile(entries[currentEntry].selfiePath || default404Image),
     { caption: selfieCaptionString, parse_mode: "HTML" },
   );
 
-  const displayEntryMsg = await ctx.api.sendMessage(ctx.chatId!, entryString, {
+  const displayEntryMsg = await ctx.api.sendMessage(ctx.chatId, entryString, {
     reply_markup: viewEntriesKeyboard,
     parse_mode: "HTML",
   });
@@ -103,7 +119,7 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
       }
       case "delete-entry": {
         await ctx.api.editMessageText(
-          ctx.chatId!,
+          ctx.chatId,
           displayEntryMsg.message_id,
           "Are you sure you want to delete this entry?",
           {
@@ -126,18 +142,18 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
           // Delete selfie file associated with entry
           if (entries[currentEntry].selfiePath) {
             await conversation.external(async () => {
-              await Deno.remove(entries[currentEntry].selfiePath!);
+              await Deno.remove(entries[currentEntry].selfiePath);
             });
           }
 
           // Delete the current entry
           await conversation.external(() =>
-            deleteEntryById(entries[currentEntry].id!, dbFile)
+            deleteEntryById(entries[currentEntry].id, dbFile)
           );
 
           // Refresh entries array
           entries = await conversation.external(() =>
-            getAllEntriesByUserId(ctx.from?.id!, dbFile)
+            getAllEntriesByUserId(ctx.from.id, dbFile)
           );
 
           if (entries.length === 0) {
@@ -154,7 +170,7 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
       }
       case "view-entry-backbutton": {
         // Close view entries menu
-        await ctx.api.deleteMessages(ctx.chatId!, [
+        await ctx.api.deleteMessages(ctx.chatId, [
           displayEntryMsg.message_id,
           displaySelfieMsg.message_id,
         ]);
@@ -162,12 +178,11 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
       }
       case "edit-entry": {
         const editEntryMsg = await viewEntryCtx.api.sendMessage(
-          ctx.chatId!,
+          ctx.chatId,
           `Copy the entry from above, edit it and send it back to me.`,
         );
         const editEntryCtx = await conversation.waitFor("message:text");
 
-        // console.log(`Entry to edit: ${editEntryCtx.message.text}`);
         let entryToEdit: Entry;
         try {
           entryToEdit = entryFromString(editEntryCtx.message.text);
@@ -177,39 +192,39 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
             return Date.now();
           });
 
-          console.log(entryToEdit);
+          logger.debug(`Entry to edit: ${JSON.stringify(entryToEdit)}`);
         } catch (err) {
           await editEntryCtx.reply(
             `There was an error reading your edited entry.  Make sure you are only editing the parts that YOU typed!`,
           );
-          console.log(err);
+          logger.error(`Error reading edited entry: ${err}`);
         }
 
-        await editEntryCtx.api.deleteMessage(ctx.chatId!, editEntryCtx.msgId);
+        await editEntryCtx.api.deleteMessage(ctx.chatId, editEntryCtx.msgId);
 
         try {
           await conversation.external(() =>
-            updateEntry(entryToEdit.id!, entryToEdit, dbFile)
+            updateEntry(entryToEdit.id, entryToEdit, dbFile)
           );
         } catch (err) {
           await editEntryCtx.reply(
             `I'm sorry I ran into an error while trying to save your changes.`,
           );
-          console.log(err);
+          logger.error(`Error updating entry: ${err}`);
         }
         // Refresh entries
         entries = await conversation.external(() =>
-          getAllEntriesByUserId(ctx.from?.id!, dbFile)
+          getAllEntriesByUserId(ctx.from.id, dbFile)
         );
 
-        // await viewEntryCtx.api.sendMessage(ctx.chatId!, "Entry Updated!");
+        // await viewEntryCtx.api.sendMessage(ctx.chatId, "Entry Updated!");
         await ctx.api.editMessageText(
-          ctx.chatId!,
+          ctx.chatId,
           editEntryMsg.message_id,
           "Message Updated!",
         );
         await ctx.api.deleteMessage(
-          ctx.chatId!,
+          ctx.chatId,
           editEntryMsg.message_id,
         );
         break;
@@ -221,11 +236,9 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
       }
     }
 
-    // console.log(entries[currentEntry]);
-
     lastEditedTimestampString = `<b>Last Edited</b> ${
       entries[currentEntry].lastEditedTimestamp
-        ? new Date(entries[currentEntry].lastEditedTimestamp!).toLocaleString()
+        ? new Date(entries[currentEntry].lastEditedTimestamp).toLocaleString()
         : ""
     }`;
 
@@ -234,7 +247,7 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
     }</b> of <b>${entries.length}</b>
 
 <b>Date Created</b> ${
-      new Date(entries[currentEntry].timestamp!).toLocaleString()
+      new Date(entries[currentEntry].timestamp).toLocaleString()
     }
 ${entries[currentEntry].lastEditedTimestamp ? lastEditedTimestampString : ""}
 <b><u>Emotion</u></b>
@@ -256,17 +269,17 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
 
     try {
       await ctx.api.editMessageText(
-        ctx.chatId!,
+        ctx.chatId,
         displayEntryMsg.message_id,
         entryString,
         { reply_markup: viewEntriesKeyboard, parse_mode: "HTML" },
       );
 
       await ctx.api.editMessageMedia(
-        ctx.chatId!,
+        ctx.chatId,
         displaySelfieMsg.message_id,
         InputMediaBuilder.photo(
-          new InputFile(entries[currentEntry].selfiePath! || "assets/404.png"),
+          new InputFile(entries[currentEntry].selfiePath || default404Image),
           { caption: selfieCaptionString, parse_mode: "HTML" },
         ),
       );

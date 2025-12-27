@@ -1,6 +1,7 @@
 import { PathLike } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { sqlFilePath } from "../constants/paths.ts";
+import { logger } from "../utils/logger.ts";
 
 export function createEntryTable(dbFile: PathLike) {
   try {
@@ -11,7 +12,7 @@ export function createEntryTable(dbFile: PathLike) {
     db.prepare(query).run();
     db.close();
   } catch (err) {
-    console.error(`Failed to create entry_db table: ${err}`);
+    logger.error(`Failed to create entry_db table: ${err}`);
   }
 }
 
@@ -25,7 +26,7 @@ export function createGadScoreTable(dbFile: PathLike) {
     db.prepare(query).run();
     db.close();
   } catch (err) {
-    console.error(`There was a a problem create the user_db table: ${err}`);
+    logger.error(`Failed to create gad_score_db table: ${err}`);
   }
 }
 
@@ -39,7 +40,7 @@ export function createPhqScoreTable(dbFile: PathLike) {
     db.prepare(query).run();
     db.close();
   } catch (err) {
-    console.error(`There was a a problem create the user_db table: ${err}`);
+    logger.error(`Failed to create phq_score_db table: ${err}`);
   }
 }
 
@@ -53,7 +54,7 @@ export function createUserTable(dbFile: PathLike) {
     db.prepare(query).run();
     db.close();
   } catch (err) {
-    console.error(`There was a a problem create the user_db table: ${err}`);
+    logger.error(`Failed to create user_db table: ${err}`);
   }
 }
 
@@ -67,7 +68,7 @@ export function createSettingsTable(dbFile: PathLike) {
     db.prepare(query).run();
     db.close();
   } catch (err) {
-    console.error(`Failed to create settings table: ${err}`);
+    logger.error(`Failed to create settings_db table: ${err}`);
   }
 }
 
@@ -81,7 +82,7 @@ export function createJournalTable(dbFile: PathLike) {
     db.prepare(query).run();
     db.close();
   } catch (err) {
-    console.error(`Failed to create settings table: ${err}`);
+    logger.error(`Failed to create journal_db table: ${err}`);
   }
 }
 
@@ -94,7 +95,7 @@ export function createJournalEntryPhotosTable(dbFile: PathLike) {
     db.prepare(query).run();
     db.close();
   } catch (err) {
-    console.error(`Failed to create settings table: ${err}`);
+    logger.error(`Failed to create photo_db table: ${err}`);
   }
 }
 
@@ -108,6 +109,28 @@ export function createVoiceRecordingTable(dbFile: PathLike) {
     db.prepare(query).run();
     db.close();
   } catch (err) {
-    console.error(`Failed to create settings table: ${err}`);
+    logger.error(`Failed to create voice_recording_db table: ${err}`);
+  }
+}
+
+export function addCustom404Column(dbFile: PathLike) {
+  try {
+    const db = new DatabaseSync(dbFile);
+    db.exec("PRAGMA foreign_keys = ON;");
+    // Check if column exists to avoid errors
+    const columns = db.prepare("PRAGMA table_info(settings_db);").all() as {
+      name: string;
+    }[];
+    const hasColumn = columns.some((col) => col.name === "custom404ImagePath");
+    if (!hasColumn) {
+      db.prepare(`
+        ALTER TABLE settings_db
+        ADD COLUMN custom404ImagePath TEXT DEFAULT NULL;
+      `).run();
+      logger.info("Added custom404ImagePath column to settings_db");
+    }
+    db.close();
+  } catch (err) {
+    logger.error(`Failed to add custom404ImagePath column: ${err}`);
   }
 }

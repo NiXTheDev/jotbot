@@ -1,7 +1,11 @@
 export const startString: string =
   `Hello!  Welcome to JotBot.  I'm here to help you record your emotions and emotion!`;
-export const telegramDownloadUrl =
-  "https://api.telegram.org/file/bot<token>/<file_path>";
+// This will be constructed dynamically using the configured API base URL
+export const getTelegramDownloadUrl = (
+  baseUrl: string,
+  token: string,
+  filePath: string,
+) => `${baseUrl}/file/bot${token}/${filePath}`;
 
 export const catImagesApiBaseUrl = `https://cataas.com`;
 export const quotesApiBaseUrl = `https://zenquotes.io/api/quotes/`;
@@ -37,22 +41,41 @@ export const helpString: string = `
 Jotbot is a telegram bot that can help you to record your thoughts and emotions in directly in the telegram app.
 
 <b><u>How do I use Jotbot?</u></b>
-Jotbot is easy to use you have to be "registered" to start recording entries.
-Once this is done you can use /new_entry to start recording an entry.  You just answer the bot's questions to the best of you ability from there.
 
-After you are finished recording your entry you can view your entry by using /view_entries.  This will bring up a menu that let's you scroll through your entries.  You can also delete entries from this screen.
-If you are wanting to stop using Jotbot you can delete your account using /delete_account this will also delete all of your journal entries!
+<b>🚀 Getting Started:</b>
+• Send /start to begin registration
+• Follow the prompts to create your profile
+
+<b>📝 Creating Entries:</b>
+• Use /new_entry to start a new journal entry
+• Answer 4 simple questions about your thoughts and emotions
+• Each step is clearly labeled with examples
+
+<b>👀 Viewing Entries:</b>
+• Use /view_entries to browse your journal
+• Navigate with Previous/Next buttons
+• Edit or delete entries as needed
+
+<b>⚙️ Settings:</b>
+• Use /settings to customize your experience
+• Toggle mental health score saving
+• Set a custom 404 image for entries without photos
+
+<b>🆘 Need Help?</b>
+• Use /delete_account to remove all your data
 
 <b><u>Commands</u></b>
-/start - Start the bot, if it's your first time messaging the bot you will be asked if you want to register.
-/help - Prints this help string in a message
-/new_entry - Start a new entry
-/view_entries - Scroll through your entries
-/kitties - Open the kitties app!  Studies show kitties can help with depression
-/delete_account - Delete your accound plus all entries
-/🆘 or /sos - Show the crisis help lines
-
-<b>NOTE</b>: The selfie features aren't working right now.
+/start - Register or access your account
+/help - Show this help message
+/new_entry - Create a new journal entry (4 simple steps)
+/view_entries - Browse and manage your entries
+/settings - Customize your bot experience
+/kitties - View cute cats for stress relief
+/am_i_depressed - Take a depression assessment (PHQ-9)
+/am_i_anxious - Take an anxiety assessment (GAD-7)
+/snapshot - View your mental health summary
+/delete_account - Permanently delete all your data
+/🆘 or /sos - Access crisis support resources
 `;
 
 export enum Emotions {

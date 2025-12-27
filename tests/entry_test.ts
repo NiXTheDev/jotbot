@@ -2,6 +2,7 @@ import { assertEquals } from "@std/assert/equals";
 import { createEntryTable, createUserTable } from "../db/migration.ts";
 import { insertUser } from "../models/user.ts";
 import { Entry, User } from "../types/types.ts";
+import { logger } from "../utils/logger.ts";
 import {
   deleteEntryById,
   getAllEntriesByUserId,
@@ -45,7 +46,7 @@ Deno.test("Test insertEntry()", () => {
     // Insert test user
     insertUser(testUser, testDbFile);
   } catch (_err) {
-    console.log("User already inserted");
+    logger.debug("User already inserted");
   }
 
   // Insert test entry
@@ -110,6 +111,7 @@ Deno.test("Test getEntryById()", () => {
 
   // Get entry by id
   const entry = getEntryById(1, testDbFile);
+  if (!entry) throw new Error("Expected entry to be defined");
 
   assertObjectMatch(testEntry, entry);
 

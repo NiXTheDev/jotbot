@@ -27,13 +27,13 @@ export async function new_journal_entry(
   try {
     const journalEntry: JournalEntry = {
       userId: ctx.from?.id!,
-      timestamp: await conversation.external(() => Date.now()),
+      timestamp: await conversation.now(),
       content: journalEntryCtx.message.text,
       length: journalEntryCtx.message.text.length,
     };
     await conversation.external(() => insertJournalEntry(journalEntry, dbFile));
   } catch (err) {
-    console.error(`Failed to insert Journal Entry: ${err}`);
+    await conversation.error(`Failed to insert Journal Entry: ${err}`)
     await ctx.reply(`Failed to insert Journal Entry: ${err}`);
     throw new Error(`Failed to insert Journal Entry: ${err}`);
   }
@@ -68,7 +68,7 @@ export async function new_journal_entry(
           id, // Latest ID
         )
       );
-      console.log(journalEntryPhoto);
+      await conversation.log(journalEntryPhoto)
       await conversation.external(() =>
         insertJournalEntryPhoto(journalEntryPhoto, dbFile)
       );

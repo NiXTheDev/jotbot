@@ -133,7 +133,10 @@ export function getJournalEntryPhotosByJournalEntryId(
  * @param id Id of the Journal Entry Photo
  * @param dbFile Path to database file
  */
-export function getJournalEntryPhotoById(id: number, dbFile: PathLike): JournalEntryPhoto {
+export function getJournalEntryPhotoById(
+  id: number,
+  dbFile: PathLike,
+): JournalEntryPhoto {
   try {
     const db = new DatabaseSync(dbFile);
     if (

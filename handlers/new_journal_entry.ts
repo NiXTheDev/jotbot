@@ -33,7 +33,7 @@ export async function new_journal_entry(
     };
     await conversation.external(() => insertJournalEntry(journalEntry, dbFile));
   } catch (err) {
-    await conversation.error(`Failed to insert Journal Entry: ${err}`)
+    await conversation.error(`Failed to insert Journal Entry: ${err}`);
     await ctx.reply(`Failed to insert Journal Entry: ${err}`);
     throw new Error(`Failed to insert Journal Entry: ${err}`);
   }
@@ -68,7 +68,7 @@ export async function new_journal_entry(
           id, // Latest ID
         )
       );
-      await conversation.log(journalEntryPhoto)
+      await conversation.log(journalEntryPhoto);
       await conversation.external(() =>
         insertJournalEntryPhoto(journalEntryPhoto, dbFile)
       );

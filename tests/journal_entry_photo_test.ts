@@ -87,5 +87,4 @@ Deno.test("Test getJournalEntryPhotosByJournalEntryId", () => {
 });
 
 Deno.test("Test getJournalEntryPhotoById", () => {
-
 });

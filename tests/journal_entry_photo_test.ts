@@ -79,12 +79,14 @@ Deno.test("Test updateJournalEntryPhoto", () => {
 });
 
 Deno.test("Test deleteJournalEntryPhoto", () => {
-  // TODO
+  // TODO: Write proper test for journal entry photo deleteion
 });
 
 Deno.test("Test getJournalEntryPhotosByJournalEntryId", () => {
-  // TODO
+  // TODO: Write proper test for photos(s) retrieval from the journal by entry id(may be multiple)
 });
 
 Deno.test("Test getJournalEntryPhotoById", () => {
+  // TODO: Write proper test for photo retrieval by entry id(one photo per entry?)
+  // NOTE: @NiXTheDev: isn't the above test a duplicate?
 });

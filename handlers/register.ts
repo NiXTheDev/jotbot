@@ -71,17 +71,8 @@ export async function register(conversation: Conversation, ctx: Context) {
     "skip-custom-404",
   ]);
 
-  if (custom404Ctx.callbackQuery.data === "set-custom-404") {
-    await custom404Ctx.editMessageText("Setting up custom 404 image...");
-    await conversation.select("set_custom_404_image");
-  } else {
-    await custom404Ctx.editMessageText(
-      "Skipped. You can set a custom 404 image anytime from Settings.",
-    );
-  }
-
   await ctx.reply(
-    `Welcome ${user.username}!  You have been successfully registered.  Would you like to start by recording an entry?`,
+    `Welcome ${user.username}!  You have been successfully registered. You can set a custom 404 image anytime from Settings. Would you like to start by recording an entry?`,
     { reply_markup: new InlineKeyboard().text("New Entry", "new-entry") },
   );
 }

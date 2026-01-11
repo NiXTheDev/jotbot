@@ -12,12 +12,14 @@ import { Settings } from "../types/types.ts";
 import { assertObjectMatch } from "@std/assert/object-match";
 import { existsSync } from "node:fs";
 
-// Create test db directory structure
 if (!existsSync(testDbFileBasePath)) {
   Deno.mkdirSync(testDbFileBasePath, { recursive: true });
 }
 
-// Create test user
+if (existsSync(testDbFile)) {
+  Deno.removeSync(testDbFile);
+}
+
 const testUser: User = {
   telegramId: 12345,
   username: "username",
@@ -28,6 +30,7 @@ const testUser: User = {
 const testSettings: Settings = {
   userId: 12345,
   storeMentalHealthInfo: false,
+  custom404ImagePath: null,
 };
 
 Deno.test("Test insertSettings()", async () => {
@@ -55,6 +58,7 @@ Deno.test("Test getSettingsById()", async () => {
 
   await Deno.removeSync(testDbFile);
 });
+
 Deno.test("Test updateSettings()", async () => {
   await createUserTable(testDbFile);
   await createSettingsTable(testDbFile);
@@ -64,6 +68,7 @@ Deno.test("Test updateSettings()", async () => {
   const settings = testSettings;
 
   settings.storeMentalHealthInfo = true;
+  settings.custom404ImagePath = "/path/to/custom/image.jpg";
 
   const queryResult = updateSettings(
     testUser.telegramId,
@@ -73,6 +78,60 @@ Deno.test("Test updateSettings()", async () => {
 
   assertEquals(queryResult?.changes, 1);
   assertEquals(queryResult?.lastInsertRowid, 0);
+
+  const updatedSettings = getSettingsById(testUser.telegramId, testDbFile);
+  assertEquals(updatedSettings?.storeMentalHealthInfo, true);
+  assertEquals(
+    updatedSettings?.custom404ImagePath,
+    "/path/to/custom/image.jpg",
+  );
+
+  await Deno.removeSync(testDbFile);
+});
+
+Deno.test("Test updateSettings() with custom404ImagePath null", async () => {
+  await createUserTable(testDbFile);
+  await createSettingsTable(testDbFile);
+  insertUser(testUser, testDbFile);
+  insertSettings(testUser.telegramId, testDbFile);
+
+  const settings = getSettingsById(testUser.telegramId, testDbFile)!;
+  settings.custom404ImagePath = "/path/to/custom/image.jpg";
+  updateSettings(testUser.telegramId, settings, testDbFile);
+
+  settings.custom404ImagePath = null;
+  updateSettings(testUser.telegramId, settings, testDbFile);
+
+  const updatedSettings = getSettingsById(testUser.telegramId, testDbFile);
+  assertEquals(updatedSettings?.custom404ImagePath, null);
+
+  await Deno.removeSync(testDbFile);
+});
+
+Deno.test("Test custom404ImagePath functionality", async () => {
+  await createUserTable(testDbFile);
+  await createSettingsTable(testDbFile);
+  insertUser(testUser, testDbFile);
+  insertSettings(testUser.telegramId, testDbFile);
+
+  let settings = getSettingsById(testUser.telegramId, testDbFile);
+  assertEquals(settings?.custom404ImagePath, null);
+
+  settings!.custom404ImagePath = "/path/to/custom/image.jpg";
+  updateSettings(testUser.telegramId, settings!, testDbFile);
+
+  let updatedSettings = getSettingsById(testUser.telegramId, testDbFile);
+  assertEquals(
+    updatedSettings?.custom404ImagePath,
+    "/path/to/custom/image.jpg",
+  );
+
+  settings = updatedSettings!;
+  settings.custom404ImagePath = null;
+  updateSettings(testUser.telegramId, settings, testDbFile);
+
+  updatedSettings = getSettingsById(testUser.telegramId, testDbFile);
+  assertEquals(updatedSettings?.custom404ImagePath, null);
 
   await Deno.removeSync(testDbFile);
 });

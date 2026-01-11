@@ -2,8 +2,8 @@ import { Context, InlineKeyboard } from "grammy";
 import { Conversation } from "@grammyjs/conversations";
 import { Emotion, Entry } from "../types/types.ts";
 import { insertEntry } from "../models/entry.ts";
-import { telegramDownloadUrl } from "../constants/strings.ts";
 import { dbFile } from "../constants/paths.ts";
+import { getTelegramDownloadUrl } from "../utils/telegram.ts";
 
 export async function new_entry(conversation: Conversation, ctx: Context) {
   // Describe situation
@@ -74,7 +74,7 @@ export async function new_entry(conversation: Conversation, ctx: Context) {
       const tmpFile = await selfiePathCtx.getFile();
       // console.log(selfiePathCtx.message.c);
       const selfieResponse = await fetch(
-        telegramDownloadUrl.replace("<token>", ctx.api.token).replace(
+        getTelegramDownloadUrl().replace("<token>", ctx.api.token).replace(
           "<file_path>",
           tmpFile.file_path!,
         ),

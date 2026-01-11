@@ -1,6 +1,8 @@
 /assets/selfies/*
 /assets/archive/selfies/*
 /assets/journal_entry_images/*
+/assets/custom_404/*
 /bin
 *.db
+.env
 jotbot

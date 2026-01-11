@@ -19,6 +19,10 @@ export function insertEntry(entry: Entry, dbFile: PathLike) {
     !(db.prepare("PRAGMA integrity_check;").get()?.integrity_check === "ok")
   ) throw new Error("JotBot Error: Databaes integrety check failed!");
   db.exec("PRAGMA foreign_keys = ON;");
+  const emotionEmoji =
+    entry.emotion.emotionEmoji && entry.emotion.emotionEmoji.length > 0
+      ? entry.emotion.emotionEmoji
+      : null;
   const queryResult = db.prepare(query).run(
     entry.userId,
     entry.timestamp!,
@@ -26,7 +30,7 @@ export function insertEntry(entry: Entry, dbFile: PathLike) {
     entry.situation,
     entry.automaticThoughts,
     entry.emotion.emotionName,
-    entry.emotion.emotionEmoji || null,
+    emotionEmoji,
     entry.emotion.emotionDescription,
     entry.selfiePath || null,
   );

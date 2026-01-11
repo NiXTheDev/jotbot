@@ -9,17 +9,24 @@ import { Entry } from "../types/types.ts";
 import { viewEntriesKeyboard } from "../utils/keyboards.ts";
 import { entryFromString } from "../utils/misc.ts";
 import { InputFile } from "grammy/types";
-import { dbFile } from "../constants/paths.ts";
+import { dbFile, default404ImagePath } from "../constants/paths.ts";
+import { getSettingsById } from "../models/settings.ts";
 
 export async function view_entries(conversation: Conversation, ctx: Context) {
   let entries: Entry[] = await conversation.external(() =>
     getAllEntriesByUserId(ctx.from?.id!, dbFile)
   );
 
-  // If there are no stored entries inform user and stop conversation
   if (entries.length === 0) {
     return await ctx.api.sendMessage(ctx.chatId!, "No entries to view.");
   }
+
+  const settings = getSettingsById(ctx.from?.id!, dbFile);
+  console.log("Settings for user:", settings);
+  const custom404Path = settings?.custom404ImagePath;
+  console.log("Custom 404 path:", custom404Path);
+  const fallback404Image = custom404Path || default404ImagePath;
+  console.log("Using fallback image:", fallback404Image);
 
   let currentEntry: number = 0;
   let lastEditedTimestampString = `<b>Last Edited</b> ${
@@ -54,7 +61,7 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
 
   // Reply initially with first entry before starting loop
   const displaySelfieMsg = await ctx.replyWithPhoto(
-    new InputFile(entries[currentEntry].selfiePath! || "assets/404.png"),
+    new InputFile(entries[currentEntry].selfiePath! || fallback404Image),
     { caption: selfieCaptionString, parse_mode: "HTML" },
   );
 
@@ -266,7 +273,7 @@ Page <b>${currentEntry + 1}</b> of <b>${entries.length}</b>
         ctx.chatId!,
         displaySelfieMsg.message_id,
         InputMediaBuilder.photo(
-          new InputFile(entries[currentEntry].selfiePath! || "assets/404.png"),
+          new InputFile(entries[currentEntry].selfiePath! || fallback404Image),
           { caption: selfieCaptionString, parse_mode: "HTML" },
         ),
       );

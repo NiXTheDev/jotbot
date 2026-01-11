@@ -40,9 +40,10 @@ export function updateSettings(
     db.exec("PRAGMA foreign_keys = ON;");
 
     const queryResult = db.prepare(
-      `UPDATE OR FAIL settings_db SET storeMentalHealthInfo = ? WHERE userId = ${userId}`,
+      `UPDATE OR FAIL settings_db SET storeMentalHealthInfo = ?, custom404ImagePath = ? WHERE userId = ${userId}`,
     ).run(
       Number(updatedSettings.storeMentalHealthInfo),
+      updatedSettings.custom404ImagePath || null,
     );
     db.close();
     return queryResult;
@@ -76,7 +77,7 @@ export function getSettingsById(userId: number, dbFile: PathLike) {
       storeMentalHealthInfo: Boolean(
         Number(queryResult?.storeMentalHealthInfo!),
       ),
-      selfieDirectory: String(queryResult?.selfieDirectory!),
+      custom404ImagePath: queryResult?.custom404ImagePath?.toString() || null,
     };
   } catch (err) {
     console.error(

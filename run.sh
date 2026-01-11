@@ -25,22 +25,30 @@ function setup_env() {
 }
 
 if [ ! $file ]; then
-    echo "No key file passed, exitting.";
-    exit 1;
-fi
+    # Check for .env file
+    if [ -f .env ]; then
+        echo "Loading environment from .env file...";
+        set -a;
+        source .env;
+        set +a;
+    else
+        echo "No key file passed, exiting.";
+        exit 1;
+    fi
+else
+    # Get keys
+    get_keys;
+    if [ $? != 0 ]; then
+        echo "Failed to extract keys from file path provided!  Failed to start bot.";
+        exit 1;
+    fi
 
-# Get keys
-get_keys;
-if [ $? != 0 ]; then
-    echo "Failed to extract keys from file path provided!  Failed to start bot.";
-    exit 1;
-fi
-
-# Setup the environment variables
-setup_env;
-if [ $? != 0 ]; then
-    echo "Failed to setup environment variables!  Failed to start bot.";
-    exit 1;
+    # Setup the environment variables
+    setup_env;
+    if [ $? != 0 ]; then
+        echo "Failed to setup environment variables!  Failed to start bot.";
+        exit 1;
+    fi
 fi
 
 # Process args

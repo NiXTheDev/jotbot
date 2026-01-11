@@ -59,20 +59,7 @@ export async function register(conversation: Conversation, ctx: Context) {
   await ctx.editMessageText(
     `Before we finish, would you like to set a custom 404 image? This image will be shown when viewing entries without a selfie.`,
     {
-      reply_markup: new InlineKeyboard().text("Yes", "set-custom-404").text(
-        "No",
-        "skip-custom-404",
-      ),
+      reply_markup: new InlineKeyboard().text("New Entry", "new-entry"),
     },
-  );
-
-  const custom404Ctx = await conversation.waitForCallbackQuery([
-    "set-custom-404",
-    "skip-custom-404",
-  ]);
-
-  await ctx.reply(
-    `Welcome ${user.username}!  You have been successfully registered. You can set a custom 404 image anytime from Settings. Would you like to start by recording an entry?`,
-    { reply_markup: new InlineKeyboard().text("New Entry", "new-entry") },
   );
 }

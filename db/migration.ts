@@ -71,6 +71,18 @@ export function createSettingsTable(dbFile: PathLike) {
   }
 }
 
+export function addCustom404ImagePathColumn(dbFile: PathLike) {
+  try {
+    const db = new DatabaseSync(dbFile);
+    db.exec("PRAGMA foreign_keys = ON;");
+    db.prepare("ALTER TABLE settings_db ADD COLUMN custom404ImagePath TEXT;")
+      .run();
+    db.close();
+  } catch (err) {
+    console.error(`Failed to add custom404ImagePath column: ${err}`);
+  }
+}
+
 export function createJournalTable(dbFile: PathLike) {
   try {
     const db = new DatabaseSync(dbFile);

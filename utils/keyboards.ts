@@ -1,4 +1,5 @@
 import { InlineKeyboard, Keyboard } from "grammy";
+import { Settings } from "../types/types.ts";
 
 export const registerKeyboard = new InlineKeyboard().text(
   "Register",
@@ -51,6 +52,20 @@ export const keyboardFinal: InlineKeyboard = new InlineKeyboard()
   .text("Very difficult").row()
   .text("Extremely difficult");
 
+export function getSettingsKeyboard(
+  settings: Settings | undefined,
+): InlineKeyboard {
+  const custom404Text = settings?.custom404ImagePath
+    ? "🖼️ Custom 404 Image: ✅"
+    : "🖼️ Custom 404 Image: ❌";
+
+  return new InlineKeyboard()
+    .text("Save Mental Health Scores", "smhs").row()
+    .text(custom404Text, "custom-404-image").row()
+    .text("Back", "settings-back");
+}
+
 export const settingsKeyboard: InlineKeyboard = new InlineKeyboard()
   .text("Save Mental Health Scores", "smhs").row()
+  .text("🖼️ Custom 404 Image: ❌", "custom-404-image").row()
   .text("Back", "settings-back");

@@ -9,8 +9,8 @@ import {
 import {
   anxietyExplanations,
   depressionExplanations,
-  telegramDownloadUrl,
 } from "../constants/strings.ts";
+import { getTelegramDownloadUrl } from "../utils/telegram.ts";
 import { File } from "grammy/types";
 
 export function sleep(ms: number) {
@@ -256,7 +256,7 @@ export async function downloadTelegramImage(
   };
   try {
     const selfieResponse = await fetch(
-      telegramDownloadUrl.replace("<token>", token).replace(
+      getTelegramDownloadUrl().replace("<token>", token).replace(
         "<file_path>",
         telegramFile.file_path!,
       ),

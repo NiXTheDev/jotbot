@@ -19,9 +19,9 @@ import {
 } from "@grammyjs/commands";
 import { FileFlavor, hydrateFiles } from "@grammyjs/files";
 import {
+  getSettingsKeyboard,
   mainCustomKeyboard,
   registerKeyboard,
-  settingsKeyboard,
 } from "./utils/keyboards.ts";
 import { delete_account } from "./handlers/delete_account.ts";
 import { view_entries } from "./handlers/view_entries.ts";
@@ -30,14 +30,34 @@ import { kitties } from "./handlers/kitties.ts";
 import { phq9_assessment } from "./handlers/phq9_assessment.ts";
 import { gad7_assessment } from "./handlers/gad7_assessment.ts";
 import { new_journal_entry } from "./handlers/new_journal_entry.ts";
-import { dbFile } from "./constants/paths.ts";
-import { createDatabase, getLatestId } from "./utils/dbUtils.ts";
+import { set_custom_404_image } from "./handlers/set_custom_404_image.ts";
+import { custom404DirPath, dbFile } from "./constants/paths.ts";
+import { createDatabase, getLatestId, runMigrations } from "./utils/dbUtils.ts";
 import { getSettingsById, updateSettings } from "./models/settings.ts";
 import { getPhqScoreById } from "./models/phq9_score.ts";
 import { getGadScoreById } from "./models/gad7_score.ts";
 import { view_journal_entries } from "./handlers/view_journal_entries.ts";
 
 if (import.meta.main) {
+  // Load .env file if it exists
+  if (existsSync(".env")) {
+    try {
+      const envContent = await Deno.readTextFile(".env");
+      for (const line of envContent.split("\n")) {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith("#")) {
+          const [key, ...valueParts] = trimmed.split("=");
+          if (key && valueParts.length) {
+            Deno.env.set(key, valueParts.join("="));
+          }
+        }
+      }
+      console.log("Loaded .env file");
+    } catch (err) {
+      console.error(`Failed to load .env file: ${err}`);
+    }
+  }
+
   // Check if database is present and if not create one
 
   // Check if db file exists if not create it and the tables
@@ -49,6 +69,8 @@ if (import.meta.main) {
       console.error(`Failed to created database: ${err}`);
     }
   } else {
+    console.log("Database found!  Running migrations...");
+    runMigrations(dbFile);
     console.log("Database found!  Starting bot.");
   }
 
@@ -58,6 +80,24 @@ if (import.meta.main) {
       Deno.mkdir("assets/selfies");
     } catch (err) {
       console.error(`Failed to create selfie directory: ${err}`);
+      Deno.exit(1);
+    }
+  }
+
+  if (!existsSync(custom404DirPath)) {
+    try {
+      Deno.mkdir(custom404DirPath);
+    } catch (err) {
+      console.error(`Failed to create custom 404 image directory: ${err}`);
+      Deno.exit(1);
+    }
+  }
+
+  if (!existsSync("assets/journal_entry_images")) {
+    try {
+      Deno.mkdir("assets/journal_entry_images");
+    } catch (err) {
+      console.error(`Failed to create journal entry images directory: ${err}`);
       Deno.exit(1);
     }
   }
@@ -86,6 +126,7 @@ if (import.meta.main) {
   jotBot.use(createConversation(gad7_assessment));
   jotBot.use(createConversation(new_journal_entry));
   jotBot.use(createConversation(view_journal_entries));
+  jotBot.use(createConversation(set_custom_404_image));
 
   jotBotCommands.command("start", "Starts the bot.", async (ctx) => {
     // Check if user exists in Database
@@ -117,7 +158,10 @@ if (import.meta.main) {
   });
 
   jotBotCommands.command("settings", "Open the settings menu", async (ctx) => {
-    await ctx.reply("Settings", { reply_markup: settingsKeyboard });
+    const settings = getSettingsById(ctx.from?.id!, dbFile);
+    await ctx.reply("Settings", {
+      reply_markup: getSettingsKeyboard(settings),
+    });
   });
 
   jotBotCommands.command("kitties", "Start the kitty engine!", async (ctx) => {
@@ -327,7 +371,7 @@ ${entries[entry].automaticThoughts}
   });
 
   jotBot.callbackQuery(
-    ["smhs", "settings-back"],
+    ["smhs", "custom-404-image", "settings-back"],
     async (ctx) => {
       switch (ctx.callbackQuery.data) {
         case "smhs": {
@@ -338,7 +382,7 @@ ${entries[entry].automaticThoughts}
             await ctx.editMessageText(
               `I will <b>NOT</b> store your GAD-7 and PHQ-9 scores`,
               {
-                reply_markup: settingsKeyboard,
+                reply_markup: getSettingsKeyboard(settings),
                 parse_mode: "HTML",
               },
             );
@@ -347,12 +391,16 @@ ${entries[entry].automaticThoughts}
             await ctx.editMessageText(
               `I <b>WILL</b> store your GAD-7 and PHQ-9 scores`,
               {
-                reply_markup: settingsKeyboard,
+                reply_markup: getSettingsKeyboard(settings),
                 parse_mode: "HTML",
               },
             );
           }
           updateSettings(ctx.from?.id!, settings!, dbFile);
+          break;
+        }
+        case "custom-404-image": {
+          await ctx.conversation.enter("set_custom_404_image");
           break;
         }
         case "settings-back": {

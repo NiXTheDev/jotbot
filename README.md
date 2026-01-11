@@ -5,6 +5,25 @@
 Jotbot is a telegram bot that can help you to record your thoughts and emotions
 in directly in the telegram app.
 
+## Configuration
+
+Jotbot uses environment variables for configuration. Copy `.env.example` to
+`.env` and fill in your values:
+
+```bash
+cp .env.example .env
+```
+
+### Environment Variables
+
+| Variable                | Description                             | Default                    |
+| ----------------------- | --------------------------------------- | -------------------------- |
+| `TELEGRAM_BOT_KEY`      | Your Telegram bot token from @BotFather | (required)                 |
+| `TELEGRAM_API_BASE_URL` | Custom Telegram Bot API URL             | `https://api.telegram.org` |
+
+The `TELEGRAM_API_BASE_URL` is useful when running behind a proxy or using a
+self-hosted Telegram API.
+
 ## How do I use Jotbot?
 
 Jotbot is easy to use you have to be "registered" to start recording entries.

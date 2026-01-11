@@ -2,6 +2,7 @@ import { Context } from "grammy";
 import { Conversation } from "@grammyjs/conversations";
 import { deleteAccountConfirmKeyboard } from "../utils/keyboards.ts";
 import { deleteUser } from "../models/user.ts";
+import { getSettingsById } from "../models/settings.ts";
 import { dbFile } from "../constants/paths.ts";
 
 export async function delete_account(conversation: Conversation, ctx: Context) {
@@ -17,6 +18,14 @@ export async function delete_account(conversation: Conversation, ctx: Context) {
     ]);
 
     if (deleteAccountCtx.callbackQuery.data === "delete-account-yes") {
+      const settings = getSettingsById(ctx.from?.id!, dbFile);
+      if (settings?.custom404ImagePath) {
+        try {
+          await Deno.remove(settings.custom404ImagePath);
+        } catch (err) {
+          console.error(`Failed to delete custom 404 image: ${err}`);
+        }
+      }
       await conversation.external(() => deleteUser(ctx.from?.id!, dbFile));
     } else if (deleteAccountCtx.callbackQuery.data === "delete-account-no") {
       conversation.halt();

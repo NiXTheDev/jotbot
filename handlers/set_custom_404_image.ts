@@ -80,7 +80,9 @@ export async function set_custom_404_image(
           }
 
           const realPath = await Deno.realPath(filePath);
-          await selfieResponse.body.pipeTo(file.writable);
+          if (selfieResponse.body) {
+            await selfieResponse.body.pipeTo(file.writable);
+          }
           console.log("Custom 404 image saved to:", realPath);
 
           settings!.custom404ImagePath = realPath;
